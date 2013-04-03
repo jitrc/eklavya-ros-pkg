@@ -30,7 +30,7 @@
   <macro name="eklavya_base_link_mesh"  params="*origin *box" >
 	  <insert_block name="origin" /> 
      <geometry>
-     <mesh filename="package://eklavya_description/meshes/body1.dae" />
+     <mesh filename="package://eklavya_description/meshes/body.dae" />
       <!--   <box size="${base_x_size} ${base_y_size} ${base_z_size}" />  -->
   	 <!-- <insert_block name="box" /> -->
     </geometry>

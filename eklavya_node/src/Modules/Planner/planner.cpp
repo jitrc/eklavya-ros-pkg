@@ -102,6 +102,16 @@ namespace planner_space {
 
     /// ------------------------------------------------------------- ///
 
+    void mouseHandler(int event, int x, int y, int flags, void* param) {
+
+        if (event == CV_EVENT_RBUTTONDOWN) {
+
+            //        i++;
+
+            std::cout << "@ Right mouse button pressed at: " << x << "," << y << std::endl;
+        }
+    }
+
     void *controllerThread(void *arg) {
         double myTargetCurvature;
         double myYaw = 0.5, previousYaw = 1, Kp = 5;
@@ -286,7 +296,9 @@ namespace planner_space {
         switch (PID_MODE) {
             case 0:
             {
-                double vavg = 70;
+                double vavg = 45;
+                double aggression = 1;
+                //s.k = s.k < 1 ? s.k / aggression : s.k * aggression;
                 left_vel = (int) 2 * vavg * s.k / (1 + s.k);
                 right_vel = (int) (2 * vavg - left_vel);
                 break;
@@ -368,7 +380,6 @@ namespace planner_space {
             '0' + left_vel % 10,
             '0' + right_vel / 10,
             '0' + right_vel % 10, '/0'};
-        cout << arr << endl;
 
         p->sendArray(arr, 5);
         usleep(100);
@@ -398,6 +409,8 @@ namespace planner_space {
 #if defined(DEBUG) || defined(SHOW_PATH)
 
         cvShowImage("[PLANNER] Map", map_img);
+        cvSetMouseCallback("[PLANNER] Map", &mouseHandler, 0);
+
 
 #ifdef DEBUG
         cvWaitKey(0);
@@ -480,7 +493,7 @@ namespace planner_space {
 
     bool isWalkable(state parent, state s) {
         int flag = 1;
-        
+
         for (unsigned int i = 0; i < seeds[s.seed_id].seed_points.size(); i++) {
             int x, y;
             double alpha = parent.pose.z;
@@ -498,7 +511,7 @@ namespace planner_space {
                 return false;
             }
         }
-        
+
         return flag == 1;
     }
 

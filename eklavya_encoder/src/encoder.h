@@ -1,7 +1,10 @@
 #ifndef _ENCODER_H
 #define _ENCODER_H
 
-#include "../../eklavya2.h"
+#include "serial_lnx.h"
+
+#define ENCODER_COMM_PORT "/dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller-if00-port1"
+#define ENCODER_BAUD_RATE 19200
 
 namespace encoder_space {
 	
@@ -20,10 +23,9 @@ namespace encoder_space {
 		Tserial *serialConnection;
 		
 		public:
-		Encoder(char *port, int baudRate);
+		Encoder();
 		EncoderData fetchEncoderData();
 	};
 }
 
 #endif
-

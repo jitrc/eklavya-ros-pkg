@@ -1,0 +1,17 @@
+<package>
+  <description brief="eklavya_encoder">
+
+     eklavya_encoder
+
+  </description>
+  <author>Tanmay</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://www.agvkgp.com/wiki/eklavya_encoder</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+
+</package>
+
+

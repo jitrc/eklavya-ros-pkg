@@ -110,6 +110,7 @@ endif ()
 
 if (USE_NAVIGATION)
 include_directories ("${PROJECT_SOURCE_DIR}/src/Modules/Navigation/")
+rosbuild_add_library(NavigationLib src/Modules/Navigation/navigation.cpp src/Modules/Navigation/navigation_thread.cpp src/Modules/Navigation/follow_nose_strategy.cpp src/Modules/Navigation/igvc_basic_strategy.cpp src/Modules/Navigation/track_way_point_strategy.cpp)
 target_link_libraries(LidarLib ${OpenCV_LIBS})
 endif ()
 

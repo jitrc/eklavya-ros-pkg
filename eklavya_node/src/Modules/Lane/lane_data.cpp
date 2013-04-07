@@ -26,7 +26,7 @@ CvPoint offset;
 CvPoint2D32f srcQuad[4], dstQuad[4];
 CvMat* warp_matrix = cvCreateMat(3, 3, CV_32FC1);
 
-int canny_kernel = 7, high_threshold = 500, low_threshold = 300, vote = 25, length = 18, mrg = 10, maxvalue_R = 255, maxvalue_G = 255, maxvalue_B = 255, minvalue_R = 210, minvalue_G = 210, minvalue_B = 210;
+int canny_kernel = 3, high_threshold = 1450, low_threshold = 900, vote = 25, length = 50, mrg = 10, maxvalue_R = 255, maxvalue_G = 255, maxvalue_B = 255, minvalue_R = 210, minvalue_G = 210, minvalue_B = 210;
 
 IplImage* LaneDetection::colorBasedLaneDetection(IplImage *frame, int maxvalue_B, int maxvalue_G, int maxvalue_R, int minvalue_B, int minvalue_G, int minvalue_R) {
     uchar* frame_data;
@@ -50,6 +50,7 @@ IplImage* LaneDetection::colorBasedLaneDetection(IplImage *frame, int maxvalue_B
         }
     }
     cvDilate(frame_out, frame_out, 0, 2);
+
     return frame_out;
 }
 
@@ -58,12 +59,14 @@ void LaneDetection::applyHoughTransform(IplImage* img, IplImage *dst, int vote, 
     CvMemStorage* storage = cvCreateMemStorage(0);
     cvSetZero(dst);
     int i;
+
     lines = cvHoughLines2(img, storage, CV_HOUGH_PROBABILISTIC, 1, CV_PI / 180, vote, length, mrgh);
     int n = lines->total;
     for (i = 0; i < n; i++) {
         CvPoint* line = (CvPoint*) cvGetSeqElem(lines, i);
         cvLine(dst, line[0], line[1], CV_RGB(255, 255, 255), 15, 8);
     }
+
     cvReleaseMemStorage(&storage);
 }
 
@@ -87,6 +90,7 @@ void LaneDetection::initializeLaneVariables(IplImage *input_frame) {
         cvNamedWindow("warp", 0);
         cvNamedWindow("view", 0);
         cvNamedWindow("view_orig", 0);
+        cvNamedWindow("Debug", 0);
     }
 
     cvCreateTrackbar("B Max", "Control Box", &maxvalue_B, 255, NULL);
@@ -99,8 +103,8 @@ void LaneDetection::initializeLaneVariables(IplImage *input_frame) {
     cvCreateTrackbar("Length", "Control Box", &length, 100, NULL);
     cvCreateTrackbar("Merge", "Control Box", &mrg, 15, NULL);
     cvCreateTrackbar("Canny Kernel", "Control Box", &canny_kernel, 10, NULL);
-    cvCreateTrackbar("High Canny Threshold", "Control Box", &high_threshold, 1000, NULL);
-    cvCreateTrackbar("Low Canny Threshold", "Control Box", &low_threshold, 500, NULL);
+    cvCreateTrackbar("High Canny Threshold", "Control Box", &high_threshold, 2000, NULL);
+    cvCreateTrackbar("Low Canny Threshold", "Control Box", &low_threshold, 2000, NULL);
 
     //Destination variables
     int widthInCM = 100, h1 = 62, h2 = 135; //width and height of the lane. width:widthoflane/scale;
@@ -225,10 +229,17 @@ void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
 
         cvEqualizeHist(gray_frame, gray_frame);
 
+        cvSmooth(gray_frame, gray_frame, CV_GAUSSIAN, 1, 0, 0);
+        
         // canny edge detection
         cvCopyMakeBorder(gray_frame, kernel_frame, offset, IPL_BORDER_REPLICATE, cvScalarAll(0));
-        cvCanny(kernel_frame, edge_frame, low_threshold * canny_kernel*canny_kernel, high_threshold * canny_kernel*canny_kernel, canny_kernel);
+        cvCanny(kernel_frame, edge_frame, low_threshold, high_threshold, canny_kernel);
         lane_o.applyHoughTransform(edge_frame, gray_hough_frame, vote, length, mrg);
+
+        if (DEBUG) {
+            cvShowImage("Hough", gray_hough_frame);
+            cvWaitKey(1);
+        }
     }
     if (choice == 0) {
         //TODO : reduce the kernel size and copy it to the lane
@@ -282,8 +293,8 @@ IplImage* LaneDetection::joinResult(IplImage* color_gray, IplImage* hough_gray) 
 
     for (i = 0; i < color_gray->height; i++) {
         for (j = 0; j < color_gray->width; j++) {
-            index_color = (i * color_gray->widthStep)+(j);
-            index_hough = ((i + ((canny_kernel - 1))) * hough_gray->widthStep)+((j + ((canny_kernel - 1))));
+            index_color = i * color_gray->widthStep + j;
+            index_hough = i * hough_gray->widthStep + j;
             if ((color_data[index_color] > 0) && (hough_data[index_hough] > 0)) {
                 lane_data[index_color] = 255;
             } else {
@@ -291,5 +302,6 @@ IplImage* LaneDetection::joinResult(IplImage* color_gray, IplImage* hough_gray) 
             }
         }
     }
+    
     return lane_gray;
 }

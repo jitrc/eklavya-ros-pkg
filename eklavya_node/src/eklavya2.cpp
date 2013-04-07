@@ -128,7 +128,6 @@ void startThreads() {
         case PlannerTestOnly:
             startThread(&lidar_id, &attr, &lidar_thread);
             startThread(&lane_id, &attr, &lane_thread);
-            startThread(&lidar_id, &attr, &lidar_thread);
             startThread(&fusion_id, &attr, &fusion_thread);
             startThread(&navigation_id, &attr, &navigation_thread);
             startThread(&planner_id, &attr, &planner_thread);

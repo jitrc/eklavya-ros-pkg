@@ -9,7 +9,7 @@
 
 #define PID_MODE 0
 
-//#define SIMCTL
+#define SIMCTL
 #define SIM_SEEDS
 //#define DEBUG
 #define SHOW_PATH
@@ -32,7 +32,8 @@
 #define OPEN 1
 #define CLOSED 2
 #define UNASSIGNED 3
-#define VMAX 100
+#define VMAX 70
+#define MAX_ITER 5000
 
 using namespace std;
 
@@ -103,12 +104,9 @@ namespace planner_space {
     /// ------------------------------------------------------------- ///
 
     void mouseHandler(int event, int x, int y, int flags, void* param) {
-
         if (event == CV_EVENT_RBUTTONDOWN) {
-
-            //        i++;
-
-            std::cout << "@ Right mouse button pressed at: " << x << "," << y << std::endl;
+//            i++;
+            ROS_INFO("[PLANNER] Right mouse button pressed at: (%d, %d)", x, y);
         }
     }
 
@@ -160,7 +158,7 @@ namespace planner_space {
         FILE *fp = fopen(SEEDS_FILE, "r");
         return_status = fscanf(fp, "%d\n", &n_seeds);
         if (return_status == 0) {
-            cout << "[PLANNER] [ERROR] Incorrect seed file format" << endl;
+            ROS_ERROR("[PLANNER] Incorrect seed file format");
             Planner::finBot();
             exit(1);
         }
@@ -171,7 +169,7 @@ namespace planner_space {
 #ifdef SIM_SEEDS
             return_status = fscanf(fp, "%lf %lf %lf %lf %lf\n", &s.k, &x, &y, &z, &s.cost);
             if (return_status == 0) {
-                cout << "[PLANNER] [ERROR] Incorrect seed file format" << endl;
+                ROS_ERROR("[PLANNER] Incorrect seed file format");
                 Planner::finBot();
                 exit(1);
             }
@@ -190,7 +188,7 @@ namespace planner_space {
             int n_seed_points;
             return_status = fscanf(fp, "%d\n", &n_seed_points);
             if (return_status == 0) {
-                cout << "[PLANNER] [ERROR] Incorrect seed file format" << endl;
+                ROS_ERROR("[PLANNER] Incorrect seed file format");
                 Planner::finBot();
                 exit(1);
             }
@@ -199,7 +197,7 @@ namespace planner_space {
                 seed_point point;
                 return_status = fscanf(fp, "%lf %lf\n", &point.x, &point.y);
                 if (return_status == 0) {
-                    cout << "[PLANNER] [ERROR] Incorrect seed file format" << endl;
+                    ROS_ERROR("[PLANNER] Incorrect seed file format");
                     Planner::finBot();
                     exit(1);
                 }
@@ -385,7 +383,7 @@ namespace planner_space {
         usleep(100);
 #endif  
 
-        ROS_INFO("[Planner] [COMMAND] : (%d, %d)", left_vel, right_vel);
+        ROS_INFO("[Planner] Command : (%d, %d)", left_vel, right_vel);
     }
 
     void reconstructPath(map<Triplet, state, PoseCompare> came_from, state current) {
@@ -423,7 +421,7 @@ namespace planner_space {
         if (seed_id != -1) {
             sendCommand(seeds[seed_id]);
         } else {
-            ROS_ERROR("[PLANNER] [ERROR] Invalid Command Requested");
+            ROS_ERROR("[PLANNER] Invalid Command Requested");
             Planner::finBot();
         }
     }
@@ -450,7 +448,7 @@ namespace planner_space {
         if (seed_id != -1) {
             sendCommand(seeds[seed_id]);
         } else {
-            ROS_ERROR("[PLANNER] [ERROR] Invalid Command Requested");
+            ROS_ERROR("[PLANNER] Invalid Command Requested");
             Planner::finBot();
         }
     }
@@ -560,11 +558,12 @@ namespace planner_space {
         map<Triplet, state, PoseCompare> came_from;
 
         if (isEqual(start, goal)) {
-            ROS_INFO("TARGET REACHED \\M/");
+            ROS_INFO("[PLANNER] Target Reached");
             Planner::finBot();
             return;
         }
 
+        int iterations = 0;
         while (!open_list.empty()) {
             //TODO: This condition needs to be handled in the strategy module.
             if (local_map[start.pose.x][start.pose.y] > 0) {
@@ -643,9 +642,16 @@ namespace planner_space {
                     }
                 }
             }
+
+            iterations++;
+            if (iterations > MAX_ITER) {
+                ROS_WARN("[PLANNER] Open List Overflow");
+                Planner::finBot();
+                return;
+            }
         }
 
-        ROS_INFO("[PLANNER] No Path Found");
+        ROS_ERROR("[PLANNER] No Path Found");
         closePlanner();
         Planner::finBot();
     }

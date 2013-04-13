@@ -1,0 +1,19 @@
+<package>
+  <description brief="eklavya_navigation">
+
+     eklavya_navigation
+
+  </description>
+  <author>Jit Ray Chowdhury</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>https://github.com/jitrc/eklavya-ros-pkg</url>
+  <depend package="rviz"/>
+  <depend package="eklavya_gazebo"/>
+  <depend package="eklavya_teleop"/>
+  <depend package="gmapping"/>
+  <depend package="amcl"/>
+  <depend package="move_base"/>
+</package>
+
+

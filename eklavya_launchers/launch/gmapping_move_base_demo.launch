@@ -2,8 +2,8 @@
 <launch>
  <param name="local_costmap/global_frame" value="/odom_combined"/>
  <include file="$(find eklavya_gazebo)/launch/simple_office.launch" />
- <!--<include file="$(find eklavya_gazebo)/launch/robot.launch" />-->
- <include file="$(find turtlebot_gazebo)/launch/robot.launch" /> 
+<include file="$(find eklavya_gazebo)/launch/robot.launch" />
+  <!--<include file="$(find turtlebot_gazebo)/launch/robot.launch" /> -->
  
   <!--- Run gmapping -->
   <include file="$(find eklavya_navigation)/config/gmapping_eklavya.launch" />

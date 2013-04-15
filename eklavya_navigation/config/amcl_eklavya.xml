@@ -3,7 +3,7 @@
 
   <arg name="use_map_topic" default="false"/>
   <arg name="scan_topic" default="scan" />
-  <arg name="odom_topic" default="odom_combined" />
+  <arg name="odom_topic" default="odom" />
   
 
   <node pkg="amcl" type="amcl" name="amcl">

@@ -18,3 +18,8 @@ rosbuild_link_boost(eklavya_drive_plugin thread)
 
 rosbuild_add_library(eklavya_simple_drive_plugin src/eklavya_simple_drive_plugin.cpp)
 rosbuild_link_boost(eklavya_simple_drive_plugin thread)
+
+add_definitions(-fPIC)
+rosbuild_add_library(gazebo_ros_eklavya src/gazebo_ros_eklavya.cpp)
+#rosbuild_link_boost(gazebo_ros_eklavya thread)
+

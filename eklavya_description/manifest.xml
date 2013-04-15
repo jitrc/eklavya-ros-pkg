@@ -8,7 +8,13 @@
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
   <url>https://github.com/jitrc/eklavya-ros-pkg</url>
-
+  <depend package="urdf" />
+  <depend package="gazebo_worlds"/>
+	
+	<export>
+        <gazebo gazebo_media_path="${prefix}" />
+    </export>
+    
 </package>
 
 

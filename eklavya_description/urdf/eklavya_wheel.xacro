@@ -20,7 +20,15 @@
     </joint>
 
     <link name="${parent}_${suffix}_wheel_link">
-      <cylinder_inertial_with_origin_wheel radius="${wheel_x_size/2}" length="${wheel_z_size}" mass="${wheel_mass}" origin="0 0 0" />
+      <!--<cylinder_inertial_with_origin_wheel radius="${wheel_x_size/2}" length="${wheel_z_size}" mass="${wheel_mass}" origin="0 0 0" />
+	  -->
+	  <inertial>
+			<mass value="0.1" />
+			<origin xyz=" 0 0 0 " />
+			<inertia  ixx="0.012411765597" ixy="0.0" ixz="0.0"
+					  iyy="0.015218160428" iyz="0.0"
+					  izz="0.011763977943" />
+		</inertial>
 	  <visual>
         <eklavya_wheel_mesh suffix="${suffix}" />  
 		<material name="Red" />

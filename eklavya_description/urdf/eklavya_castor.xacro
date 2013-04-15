@@ -8,9 +8,9 @@
 
  
  
- <macro name="caster_support_hinge" params="suffix parent">
+ <macro name="caster_support_hinge" params="suffix parent"> 
 	<joint name="${parent}_caster_support_hinge_${suffix}_joint" type="continuous">
-      <origin  rpy="0 0 ${M_PI}" xyz="${+base_x_size/2 -wheelhub_x_size/2} 0 ${castor_x_size/2 -wheel_x_size/2 -base_z_origin_to_caster_wheel_origin}"/> 
+      <origin  rpy="0 0 0" xyz="${+base_x_size/2 -wheelhub_x_size/2} 0 ${castor_x_size/2 -wheel_x_size/2 -base_z_origin_to_caster_wheel_origin}"/> 
       <parent link="${parent}" />
       <child link="${parent}_caster_support_hinge_${suffix}_link"/>
 
@@ -28,17 +28,18 @@
 
     <link name="${parent}_caster_support_hinge_${suffix}_link">
       <inertial>
-        <mass value="1"/>
-        <origin xyz="0 0 0"/>
-        <inertia ixx="0.00375" ixy="0.0" ixz="0.0"
-          iyy="0.00375" iyz="0.0"
-          izz="0.00375" />
-      </inertial>
+			<mass value="0.1"/>
+			<origin xyz="0 0 0" />
+			<inertia ixx="0.01" ixy="0.0" ixz="0.0"
+					 iyy="0.01" iyz="0.0"
+					 izz="0.01" />
+		</inertial>
       <visual>
         <eklavya_castor_support_link_mesh />        
       </visual>
       <collision>
-        <eklavya_collision_none />
+        <!--<eklavya_collision_none />-->
+        <eklavya_castor_support_link_mesh />  
       </collision>
     </link>
 </macro>
@@ -64,17 +65,25 @@
 
     <link name="${parent}_caster_wheel_${suffix}_link">
     
-	<cylinder_inertial_with_origin_wheel radius="${castor_x_size/2}" length="${castor_z_size}" mass="1" origin="0 0 0" />
+	<!--<cylinder_inertial_with_origin_wheel radius="${castor_x_size/2}" length="${castor_z_size}" mass="1" origin="0 0 0" /> -->
+	 <inertial>
+		<mass value="0.1" /> 
+		<origin xyz="0 0 0" rpy="0 0 0" />
+		<inertia  ixx="0.012411765597" ixy="-0.000711733678" ixz="0.00050272983"
+				  iyy="0.015218160428" iyz="-0.000004273467"
+				  izz="0.011763977943" />
+	</inertial>
       <visual>
         <eklavya_castor_wheel_link_mesh />
       </visual>
 
       <collision>
-		<origin xyz="0 0 0" rpy="1.570796327 0 0" />
-		<!--<origin xyz="0 0 0" rpy="0 0 0" /> -->
+		<eklavya_castor_wheel_link_mesh />
+		<!--
+		<origin xyz="0 0 0" rpy="${M_PI/2} 0 0" />
 		<geometry>   
 			<cylinder radius="${castor_x_size/2}" length="${castor_z_size}"/>
-		</geometry>
+		</geometry> -->
       </collision>
     </link>
     <gazebo_eklavya_castor_wheel_link_surface suffix="${suffix}" parent="${parent}" />

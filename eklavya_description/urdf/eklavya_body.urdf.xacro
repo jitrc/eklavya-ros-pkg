@@ -32,6 +32,12 @@
 			</geometry>
 			<material name="Green" />
 		</visual>
+		<collision>
+		  <origin xyz="0 0 0.128" rpy="0 0 0" />
+		  <geometry>
+		   <box size="0.001 0.001 0.001" />
+		  </geometry>
+		</collision>
 	</link>
 
 	<joint name="base_footprint_joint" type="fixed">
@@ -89,20 +95,21 @@
     
     
 	<!-- Controllers -->
+	<gazebo_ros_eklavya_plugin /> 
 	<!-- <gazebo_eklavya_simple_drive_plugin /> -->
-	<gazebo_eklavya_drive_plugin />
+	<!-- <gazebo_eklavya_drive_plugin /> -->
 	 <!-- <gazebo_eklavya_drive_plugin_diffdrive />  -->  <!-- cmd_vel movement -->
-	   <gazebo_eklavya_p3d_plugin />  <!-- Ground Truth-->
+	 <!-- <gazebo_eklavya_p3d_plugin />  Ground Truth-->
 	 <eklavya_controllers_common />  
     
     <!-- Simulation sensors -->
-    <hokuyo_urg name="hokuyo_laser" parent="base_link" >
+    <!--<hokuyo_urg name="hokuyo_laser" parent="base_link" >
       <origin rpy="0 0 0" xyz="${base_x_size/2} 0  ${base_z_size-0.03}"/>
-    </hokuyo_urg>  
+    </hokuyo_urg>  -->
     
-	<!--<sick_lms100_200 name="sick_laser" parent="base_link" >
-		<origin rpy="0 0 0" xyz="${base_x_size/2+0.12} 0  0.080"/>
-	</sick_lms100_200>   -->
+	<sick_lms100_200 name="sick_laser" parent="base_link" >
+		<origin rpy="0 0 0" xyz="${base_x_size/2} 0  ${base_z_size-0.03}"/>
+	</sick_lms100_200>   
 	  <microstrain_imu name="eklavya_sim_imu" parent="base_link" imu_topic="imu/data" update_rate="30" stdevNoise="0.0017">
 		 <origin rpy="0 0 0" xyz="0 0 0"/>
 	</microstrain_imu>  

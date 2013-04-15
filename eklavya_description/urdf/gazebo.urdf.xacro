@@ -145,6 +145,25 @@
          </gazebo>
     </macro>
 
+
+	<macro name="gazebo_ros_eklavya_plugin">
+        <gazebo>
+            <controller:gazebo_ros_eklavya name="gazebo_ros_eklavya_controller" plugin="libgazebo_ros_eklavya.so">
+			  <alwaysOn>true</alwaysOn>
+			  <node_namespace>eklavya_node</node_namespace>
+			  <left_wheel_joint>base_link_right_wheel_joint</left_wheel_joint>
+			  <right_wheel_joint>base_link_left_wheel_joint</right_wheel_joint>
+			  <front_castor_wheel_joint>base_link_caster_wheel_front_joint</front_castor_wheel_joint>
+			  <front_castor_swivel_joint>base_link_caster_support_hinge_front_joint</front_castor_swivel_joint>
+			  <wheel_separation>${base_y_origin_to_wheel_origin*2}</wheel_separation> <!-- ${base_y_origin_to_wheel_origin*2} 0.3305 -->
+			  <wheel_diameter>${wheel_x_size}</wheel_diameter> <!-- ${wheel_x_size} 0.15 -->
+			  <updateRate>40</updateRate>
+			  <torque>20</torque>
+			</controller:gazebo_ros_eklavya>
+         </gazebo>
+    </macro>
+    
+    
 	<macro name="gazebo_eklavya_p3d_plugin">
 		 <gazebo>
             <controller:gazebo_ros_p3d name="p3d_base_controller" plugin="libgazebo_ros_p3d.so">

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
- <param name="local_costmap/global_frame" value="/odom"/>
+ <param name="local_costmap/global_frame" value="/odom_combined"/>
  <include file="$(find eklavya_gazebo)/launch/simple_office.launch" />
 <include file="$(find eklavya_gazebo)/launch/robot.launch" />
   <!--<include file="$(find turtlebot_gazebo)/launch/robot.launch" /> -->
@@ -10,8 +10,8 @@
 
   <!--- Run Move Base -->
   <include file="$(find eklavya_navigation)/config/move_base_eklavya.xml" />
-  
-	
+
+ <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/> -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ros_liv_turtlebot)/nav_rviz.vcg" />
   
   	<!-- keyboard teleoperation -->

@@ -2,10 +2,10 @@
 <launch>
 
     <arg name="scan_topic" default="scan" />
-    <arg name="odom_topic" default="odom" />
+    <arg name="odom_frame" default="odom_combined" />
 
   <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
-    <param name="odom_frame" value="$(arg odom_topic)"/>
+    <param name="odom_frame" value="$(arg odom_frame)"/>
     <param name="map_update_interval" value="30.0"/>
     <param name="maxUrange" value="16.0"/>
     <param name="sigma" value="0.05"/>

@@ -201,7 +201,7 @@ void GazeboRosEklavya::UpdateChild()
   // Compute odometric pose
   odom_pose_[0] += dr * cos( odom_pose_[2] );
   odom_pose_[1] += dr * sin( odom_pose_[2] );
-  odom_pose_[2] -= da;
+  odom_pose_[2] += da;
 
   // Compute odometric instantaneous velocity
   odom_vel_[0] = dr / step_time.Double();
@@ -219,23 +219,31 @@ void GazeboRosEklavya::UpdateChild()
     joints_[RIGHT]->SetVelocity( 0, wheel_speed_[RIGHT] / (wd / 2.0) );
     joints_[RIGHT]->SetMaxForce( 0, torque_ );
   }
+// getting data for base_footprint to odom transform
+  math::Pose pose = this->my_parent_->GetState().GetPose();
 
+  btQuaternion qt1(pose.rot.x, pose.rot.y, pose.rot.z, pose.rot.w);
+ // btVector3 vt(pose.pos.x, pose.pos.y, pose.pos.z);
+
+  //tf::Transform base_footprint_to_odom(qt1, vt);
+ // transform_broadcaster_->sendTransform(tf::StampedTransform(base_footprint_to_odom,current_time,odom_frame,base_footprint_frame));
+// publish odom topic
   nav_msgs::Odometry odom;
   odom.header.stamp.sec = time_now.sec;
   odom.header.stamp.nsec = time_now.nsec;
   odom.header.frame_id = "odom";
   odom.child_frame_id = "base_footprint";
-  odom.pose.pose.position.x = odom_pose_[0];
-  odom.pose.pose.position.y = odom_pose_[1];
+  odom.pose.pose.position.x = pose.pos.x;//odom_pose_[0];
+  odom.pose.pose.position.y = pose.pos.y;//odom_pose_[1];
   odom.pose.pose.position.z = 0;
 
   btQuaternion qt;
   qt.setEuler(0,0,odom_pose_[2]);
 
-  odom.pose.pose.orientation.x = qt.getX();
-  odom.pose.pose.orientation.y = qt.getY();
-  odom.pose.pose.orientation.z = qt.getZ();
-  odom.pose.pose.orientation.w = qt.getW();
+  odom.pose.pose.orientation.x = pose.rot.x;//qt.getX();
+  odom.pose.pose.orientation.y = pose.rot.y;//qt.getY();
+  odom.pose.pose.orientation.z = pose.rot.z;//qt.getZ();
+  odom.pose.pose.orientation.w = pose.rot.w;//qt.getW();
 
   double pose_cov[36] = { 1e-3, 0, 0, 0, 0, 0,
                           0, 1e-3, 0, 0, 0, 0,
@@ -303,8 +311,8 @@ void GazeboRosEklavya::OnCmdVel( const geometry_msgs::TwistConstPtr &msg)
   vr = msg->linear.x;
   va = msg->angular.z;
 
-  wheel_speed_[LEFT] = vr - va * (wheel_sep_) / 2;
-  wheel_speed_[RIGHT] = vr + va * (wheel_sep_) / 2;
+  wheel_speed_[LEFT] = vr + va * (wheel_sep_) / 2;
+  wheel_speed_[RIGHT] = vr - va * (wheel_sep_) / 2;
 }
 
 void GazeboRosEklavya::spin()

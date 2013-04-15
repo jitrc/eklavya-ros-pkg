@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-   <arg name="map_file" default="$(find eklavya_navigation)/maps/map.yaml"/>
+ <arg name="map_file" default="$(find eklavya_navigation)/maps/map.yaml"/>
  <param name="local_costmap/global_frame" value="/odom_combined"/>
 
  <include file="$(find eklavya_gazebo)/launch/simple_office.launch" />
@@ -10,14 +10,14 @@
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
   <!--- Run AMCL -->
-  <include file="$(find eklavya_navigation)/config/amcl_eklavya.launch" />
+  <include file="$(find eklavya_navigation)/config/amcl_eklavya.xml" />
  <!--- <node pkg="amcl" type="amcl" name="amcl">
     <param name="odom_frame_id" value="odom_combined"/>
   </node> -->
 
 
   <!--- Run Move Base -->
-  <include file="$(find eklavya_navigation)/config/move_base_eklavya.launch" />
+  <include file="$(find eklavya_navigation)/config/move_base_eklavya.xml" />
 
 
 </launch>

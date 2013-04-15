@@ -90,8 +90,8 @@
     
 	<!-- Controllers -->
 	<!-- <gazebo_eklavya_simple_drive_plugin /> -->
-	<!--<gazebo_eklavya_drive_plugin /> -->
-	  <gazebo_eklavya_drive_plugin_diffdrive />   <!-- cmd_vel movement -->
+	<gazebo_eklavya_drive_plugin />
+	 <!-- <gazebo_eklavya_drive_plugin_diffdrive />  -->  <!-- cmd_vel movement -->
 	   <gazebo_eklavya_p3d_plugin />  <!-- Ground Truth-->
 	 <eklavya_controllers_common />  
     

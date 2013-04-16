@@ -1,0 +1,34 @@
+material IGVC/Grass
+{
+  receive_shadows on
+  technique
+  {
+    pass 
+    {
+		ambient 1.0 1.0 1.0 1.000000
+      texture_unit
+      {
+        texture igvc_grass2.jpg
+        scale .04 .04
+      }
+    }
+  }
+}
+
+material IGVC/NavOverlay
+{
+  receive_shadows on
+  technique
+  {
+    pass 
+    {
+      scene_blend alpha_blend
+      depth_write off
+
+      texture_unit
+      {
+        texture nav1_overlay.png
+      }
+    }
+  }
+}

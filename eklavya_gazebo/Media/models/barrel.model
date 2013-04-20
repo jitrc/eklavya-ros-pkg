@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<model:physical name="barrel"
+xmlns:model="http://playerstage.sourceforge.net/gazebo/xmlschema/#model"
+xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+xmlns:body="http://playerstage.sourceforge.net/gazebo/xmlschema/#body"
+xmlns:geom="http://playerstage.sourceforge.net/gazebo/xmlschema/#geom"
+xmlns:joint="http://playerstage.sourceforge.net/gazebo/xmlschema/#joint"
+xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+>
+  <xyz>   0.0    0.0    0.0</xyz>
+  <rpy>   0.0    0.0    0.0</rpy>
+  <static>true</static>
+  <body:trimesh name="map1_body">
+    <xyz>  0.0    0.0  0.0</xyz>
+    <rpy>  0.0    0.0  0.0</rpy>
+    <static>true</static>
+    <geom:trimesh name="map1_geom">
+      <laserRetro>2000.0</laserRetro>
+      <scale>0.02 0.02 0.02</scale>
+      <mesh>Construction_Barrel.dae</mesh>
+      <visual>
+        <scale>0.02 0.02 0.02</scale>
+        <material>Gazebo/Red</material>
+        <mesh>Construction_Barrel.dae</mesh>
+      </visual>
+      <collision>
+	<scale>0.02 0.02 0.02</scale>
+        <mesh>Construction_Barrel.dae</mesh>
+      </collision>
+      <inertial>
+	<mass value="6"/>
+	<inertia ixx="1.0" ixy="0.0" ixz="0.0"
+		iyy="1.0" iyz="0.0"
+		izz="1.0"/>
+	</inertial>
+    </geom:trimesh>
+  </body:trimesh>
+</model:physical>

@@ -1,20 +1,17 @@
 <package>
-  <description brief="eklavya_encoder">
+  <description brief="eklavya_odometry">
 
-     eklavya_encoder
+     eklavya_odometry
 
   </description>
   <author>Tanmay</author>
   <license>BSD</license>
   <review status="unreviewed" notes=""/>
-  <url>http://www.agvkgp.com/wiki/eklavya_encoder</url>
+  <url>http://www.agvkgp.com/wiki/eklavya_odometry</url>
   <depend package="std_msgs"/>
   <depend package="rospy"/>
   <depend package="roscpp"/>
-  
-  <export>
-    <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib"/>
-  </export>
+  <depend package="eklavya_encoder"/>
 
 </package>
 

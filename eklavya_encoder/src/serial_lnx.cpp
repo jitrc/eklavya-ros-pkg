@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <sys/signal.h>
 #include <sys/types.h>
-#include "serial_lnx.h"
+#include <eklavya_encoder/serial_lnx.h>
 #include <stdlib.h>
 Tserial::Tserial()
 {

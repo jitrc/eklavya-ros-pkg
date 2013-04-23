@@ -21,7 +21,7 @@
 	<property name="wheel_y_size" value="0.22000000" />
 	<property name="wheel_z_size" value="0.09000000" />
 	
-	<property name="base_x_origin_to_wheel_origin" value="-0.16" />
+	<property name="base_x_origin_to_wheel_origin" value="0.16" />
 	<property name="base_y_origin_to_wheel_origin" value="0.220" />
 	<property name="base_z_origin_to_wheel_origin" value="0" />
 	

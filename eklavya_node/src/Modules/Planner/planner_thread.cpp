@@ -104,16 +104,15 @@ void *planner_thread(void *arg) {
         }
         pthread_mutex_unlock(&global_map_mutex);
 
-        cv::imshow("[PLANNER] Map", map_img);
-        cvWaitKey(WAIT_TIME);
+        // cv::imshow("[PLANNER] Map", map_img);
+        // cvWaitKey(WAIT_TIME);
       
-           my_bot_location.x=500;
-        my_bot_location.y=100;
-        my_bot_location.z=90;
-        my_target_location.x=100+rand()%800;
-        my_target_location.y=100+rand()%800;
-        my_target_location.z=90;
-         //void addObstacleP(map_img, 500, 500, 100);
+        // my_bot_location.x=500;
+        // my_bot_location.y=100;
+        // my_bot_location.z=90;
+        // my_target_location.x=500;
+        // my_target_location.y=901;
+        // my_target_location.z=90;
 
         cmdvel=planner_space::Planner::findPath(my_bot_location, my_target_location,map_img);
 	 vel_pub.publish(cmdvel);

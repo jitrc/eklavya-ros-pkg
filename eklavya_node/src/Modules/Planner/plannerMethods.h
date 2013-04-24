@@ -10,7 +10,7 @@
  */
 
 #define PID_MODE 0
-//#define DistTransform
+#define DistTransform
 #define SIMCTL
 #define SIM_SEEDS
 //#define DEBUG
@@ -220,6 +220,8 @@ typedef struct state { // elemental data structure of openset
 
         return error < 35;
     }
+
+
 
     void plotPoint(cv::Mat map_img,Triplet pose) {
         int x = pose.x;
@@ -511,6 +513,31 @@ typedef struct state { // elemental data structure of openset
         return neighbours;
     }
 
+    bool onTarget(state current ,state goal)
+    {
+        for (unsigned int i = 0; i < seeds.size();  i++)
+        {
+            for (unsigned int j = 0; j < seeds[i].seed_points.size(); j++)
+            {
+                state temp;
+                 double sx = seeds[i].seed_points[j].x;
+            double sy = seeds[i].dest.y;
+            double sz = seeds[i].dest.z;
+
+            temp.pose.x = (int) (current.pose.x +
+                    sx * sin(current.pose.z * (CV_PI / 180)) +
+                    sy * cos(current.pose.z * (CV_PI / 180)));
+            temp.pose.y = (int) (current.pose.y +
+                    -sx * cos(current.pose.z * (CV_PI / 180)) +
+                    sy * sin(current.pose.z * (CV_PI / 180)));
+             
+                if(isEqual(temp,goal))
+                    return true;
+            }
+        }
+        return false;
+    }
+
     void print(state s) {
         double f = s.g + s.h;
         cout << "{ " <<
@@ -551,10 +578,15 @@ typedef struct state { // elemental data structure of openset
     void addObstacleP(cv::Mat map_img,int x,int y,int r)
     {
         
-        for(int i = -r; i < r; i++) {
+         for(int i = -r; i < r; i++) {
+            if(x+i>=0&&x+i<=MAP_MAX){
+
             for(int j = -r; j < r; j++) {
+            if(y+j>=0&&y+j<=MAP_MAX){
                 local_map[x + i][y + j] = 255;
             }
+            }
+        }
         }
 #if defined(DEBUG) || defined(SHOW_PATH)
         cv::circle(map_img, cvPoint(x, MAP_MAX - y - 1), r, CV_RGB(255, 255, 255), -1, CV_AA, 0);

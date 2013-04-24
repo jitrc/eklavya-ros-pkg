@@ -12,7 +12,7 @@
   <include file="$(find eklavya_navigation)/config/move_base_eklavya.xml" />
 
  <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/> -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ros_liv_turtlebot)/nav_rviz.vcg" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find eklavya_navigation)/nav_rviz.vcg" />
   
   	<!-- keyboard teleoperation -->
 	<node name="teleop" pkg="eklavya_teleop" type="eklavya_keyboard_teleop" />

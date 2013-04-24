@@ -1,4 +1,7 @@
 #include "lane_data.h"
+#include <cvblob.h>
+
+using namespace cvb;
 
 #define DEBUG 0
 

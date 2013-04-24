@@ -1,4 +1,5 @@
 #include "LidarData.h"
+#include <cvblob.h>
 
 /*  Filter:
  *  0: No filter
@@ -65,7 +66,7 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
 
     //TODO: put kernel initialization in constructor
     IplConvKernel *ker1, *ker2;
-    CvBlobs blobs;
+    cvb::CvBlobs blobs;
     uchar * ptr;
 
     //initialize variables ended

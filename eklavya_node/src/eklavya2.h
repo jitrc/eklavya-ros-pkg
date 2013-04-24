@@ -22,12 +22,12 @@
 
 enum Strategies {
     FollowNose = 0,
-    TrackWayPoint,
-    HectorSLAM,
-    LaserTestOnly,
-    PlannerTestOnly,
-    FusionTestOnly,
-    IGVCBasic
+    TrackWayPoint =1,
+    HectorSLAM =2,
+    LaserTestOnly =3,
+    PlannerTestOnly =4 ,
+    FusionTestOnly =5,
+    IGVCBasic =6
 };
 
 typedef struct Triplet {

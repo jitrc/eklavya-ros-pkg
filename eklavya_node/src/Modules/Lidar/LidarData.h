@@ -6,7 +6,6 @@
  */
 #include "../../eklavya2.h"
 #include <opencv2/core/types_c.h>
-#include <cvblob.h>
 #include "sensor_msgs/LaserScan.h"
 
 using namespace std;
@@ -24,8 +23,6 @@ private:
     static void createCircle(int x, int y);
 
 };
-
-using namespace cvb;
 
 #endif	/* LIDARDATA_H */
 

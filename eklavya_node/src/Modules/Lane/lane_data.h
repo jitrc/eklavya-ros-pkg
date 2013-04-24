@@ -3,7 +3,6 @@
 #include <image_transport/image_transport.h>
 #include <opencv/cvwimage.h>
 #include <stdexcept>
-#include <cvblob.h>
 #include <opencv2/imgproc/imgproc_c.h>
 #include <opencv2/core/core_c.h>
 #include <sensor_msgs/Image.h>
@@ -19,7 +18,5 @@ public:
     IplImage* joinResult(IplImage* color_gray, IplImage* hough_gray);
     void initializeLaneVariables(IplImage *img);
 };
-
-using namespace cvb;
 
 #endif

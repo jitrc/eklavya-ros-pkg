@@ -1,16 +1,25 @@
 #include "planner.h"
 
+#include <sstream>
 //#define FPS_TEST
 
 char **local_map;
-IplImage *map_img;
+//IplImage *map_img;
+
 
 void *planner_thread(void *arg) {
     Triplet my_bot_location;
     Triplet my_target_location;
+    
+    ros::NodeHandle nh;
+    	ros::Publisher vel_pub;
 
-    map_img = cvCreateImage(cvSize(MAP_MAX, MAP_MAX), IPL_DEPTH_8U, 3);
+    vel_pub = nh.advertise<geometry_msgs::Twist>("cmd_vel",1);
+
     cvNamedWindow("[PLANNER] Map", 0);
+
+	int i,j;
+
 
     //initializing local map
     local_map = new char*[MAP_MAX];
@@ -32,8 +41,13 @@ void *planner_thread(void *arg) {
 #endif
 
     ros::Rate loop_rate(LOOP_RATE);
+	geometry_msgs::Twist cmdvel;
 
     while (ros::ok()) {
+        cv::Mat map_img(MAP_MAX,MAP_MAX,CV_8UC3,cv::Scalar(0));
+
+
+
 #ifdef FPS_TEST
         if (iterations > 1000) {
             time_t finish = time(0);
@@ -74,21 +88,35 @@ void *planner_thread(void *arg) {
         pthread_mutex_lock(&global_map_mutex);
         for (int i = 0; i < MAP_MAX; i++) {
             for (int j = 0; j < MAP_MAX; j++) {
-                int i1 = i;
+                // int i1 = i;
+                // uchar* ptr = (uchar *) (map_img->imageData + j1 * map_img->widthStep);
+                // ptr[3 * i1 + 0] = global_map[i][j];
+                // ptr[3 * i1 + 1] = global_map[i][j];
+                // ptr[3 * i1 + 2] = global_map[i][j];
+                // local_map[i][j] = global_map[i][j];
                 int j1 = MAP_MAX - 1 - j;
-                uchar* ptr = (uchar *) (map_img->imageData + j1 * map_img->widthStep);
-                ptr[3 * i1 + 0] = global_map[i][j];
-                ptr[3 * i1 + 1] = global_map[i][j];
-                ptr[3 * i1 + 2] = global_map[i][j];
+                map_img.at<cv::Vec2b>(i,j1)[0] = global_map[i][j];                    
+                map_img.at<cv::Vec2b>(i,j1)[1] = global_map[i][j];                    
+                map_img.at<cv::Vec2b>(i,j1)[2] = global_map[i][j];                    
                 local_map[i][j] = global_map[i][j];
+
             }
         }
         pthread_mutex_unlock(&global_map_mutex);
 
-        cvShowImage("[PLANNER] Map", map_img);
+        cv::imshow("[PLANNER] Map", map_img);
         cvWaitKey(WAIT_TIME);
+      
+           my_bot_location.x=500;
+        my_bot_location.y=100;
+        my_bot_location.z=90;
+        my_target_location.x=100+rand()%800;
+        my_target_location.y=100+rand()%800;
+        my_target_location.z=90;
+         //void addObstacleP(map_img, 500, 500, 100);
 
-        planner_space::Planner::findPath(my_bot_location, my_target_location);
+        cmdvel=planner_space::Planner::findPath(my_bot_location, my_target_location,map_img);
+	 vel_pub.publish(cmdvel);
 
         loop_rate.sleep();
     }

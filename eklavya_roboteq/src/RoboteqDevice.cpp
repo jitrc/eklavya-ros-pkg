@@ -7,8 +7,8 @@
 #include <time.h>
 #include <sstream>
 
-#include "RoboteqDevice.h"
-#include "ErrorCodes.h"
+#include "eklavya_roboteq/RoboteqDevice.h"
+#include "eklavya_roboteq/ErrorCodes.h"
 
 using namespace std;
 

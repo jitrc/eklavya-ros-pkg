@@ -3,11 +3,6 @@
 
 #include "../msg_gen/cpp/include/eklavya_encoder/Encoder_Data.h"
 
-#include "eklavya_encoder/serial_lnx.h"
-
-#define ENCODER_COMM_PORT "/dev/serial/by-id/usb-Prolific_Technology_Inc._USB-Serial_Controller-if00-port0"
-#define ENCODER_BAUD_RATE 19200
-
 namespace encoder_space {
 	
 	class EncoderData {
@@ -18,14 +13,9 @@ namespace encoder_space {
 		
 	};
 	
-	class Encoder {
-		
-		
-		private:
-		Tserial *serialConnection;
-		
+	class Encoder {		
 		public:
-		Encoder();
+		Encoder(int argc, char **argv);
 		EncoderData fetchEncoderData();
 	};
 }

@@ -8,7 +8,7 @@ using namespace std;
 
 int main(int argc, char **argv) {
     
-    encoder_space::Encoder encoder;
+    encoder_space::Encoder encoder(argc, argv);
     encoder_space::EncoderData encoder_data;
     
     const string publisher_name = "encoder";

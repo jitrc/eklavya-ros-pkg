@@ -12,6 +12,8 @@
   <depend package="rospy"/>
   <depend package="roscpp"/>
   
+  <depend package="eklavya_roboteq"/>
+  
   <export>
     <cpp cflags="-I${prefix}/include" lflags="-L${prefix}/lib"/>
   </export>

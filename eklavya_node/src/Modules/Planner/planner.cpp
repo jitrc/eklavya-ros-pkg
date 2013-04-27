@@ -36,6 +36,12 @@ namespace planner_space {
         open_map[start.pose].cost = start.g;
 
         map<Triplet, state, PoseCompare> came_from;
+        
+        ros::NodeHandle nh;
+        ros::Publisher target_pub = nh.advertise<std_msgs::String>("target_reached", 20);
+        std_msgs::String msg;
+        msg.data = "REACHED YO YO";
+        
         // addObstacleP(map_img,500,500,20)    ;
 
         //  addObstacleP(map_img,100+rand()%600,100+rand()%600,20);
@@ -66,7 +72,8 @@ namespace planner_space {
     #endif
         if (isEqual(start, goal)) {
             ROS_INFO("[PLANNER] Target Reached");
-            Planner::finBot();
+            //Planner::finBot();
+            target_pub.publish(msg);
             return cmdvel;
         }
 

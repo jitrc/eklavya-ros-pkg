@@ -6,6 +6,7 @@
 #include <opencv2/imgproc/imgproc_c.h>
 #include <opencv2/core/core_c.h>
 #include <sensor_msgs/Image.h>
+#include <fstream>
 
 #ifndef LANE_DATA_H
 #define	LANE_DATA_H
@@ -17,6 +18,7 @@ public:
     void applyHoughTransform(IplImage* img, IplImage *dst, int vote, int length, int merge);
     IplImage* joinResult(IplImage* color_gray, IplImage* hough_gray);
     void initializeLaneVariables(IplImage *img);
+    static void writeVal(int val);
 };
 
 #endif

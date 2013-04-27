@@ -36,9 +36,13 @@ typedef struct ll{
 }latlong;
 
 int current_target=0;
+int NO_OF_TARGETS=0;
+
+void nextTarget(const std_msgs::String::ConstPtr& msg){
+    current_target = (current_target++)%NO_OF_TARGETS;
+}
 
 int main(int argc, char** argv) {
-    int NO_OF_TARGETS=0;
     ros::init(argc, argv, "Position_data");
     ros::NodeHandle n;
     std::ifstream file; // File reading variable
@@ -46,6 +50,7 @@ int main(int argc, char** argv) {
     latlong *targets;
     double error=0;
     file>>NO_OF_TARGETS;
+    ros::Subscriber sub = n.subscribe("target_reached", 100, nextTarget);
     
     targets=(latlong*)malloc(NO_OF_TARGETS*sizeof(latlong));
     
@@ -182,10 +187,14 @@ int main(int argc, char** argv) {
         /// POSE.ORIENTATION : Orientation of the bot
 
         //Pose data
-        error=sqrt( p.x*p.x+p.y*p.y);
-        if(error<ERROR_THRESHOLD){
-            current_target=(current_target+1)%NO_OF_TARGETS;
-        }
+//        error=sqrt( p.x*p.x+p.y*p.y);
+//        if(error<ERROR_THRESHOLD){
+//            current_target=(current_target+1)%NO_OF_TARGETS;
+//        }
+        
+        
+        ros::spinOnce();
+        
         _pose.position.x = p.x;
         _pose.position.y = p.y;
         _pose.position.z = p.z;

@@ -3,9 +3,9 @@
 
 using namespace cvb;
 
-#define DEBUG 0
+#define DEBUG 1
 
-#define choice 2
+#define choice 1
 #define scale 220/57
 #define N 7 // canny kernel 
 
@@ -95,19 +95,24 @@ void LaneDetection::initializeLaneVariables(IplImage *input_frame) {
         cvNamedWindow("view_orig", 0);
         cvNamedWindow("Debug", 0);
     }
+    
+    fstream file;
+    file.open("../src/Modules/Lane/parameters.txt", ios::in);
+    file>>maxvalue_B>>maxvalue_G>>maxvalue_R>>minvalue_B>>minvalue_G>>minvalue_R>>vote>>length>>mrg>>canny_kernel>>high_threshold>>low_threshold;
+    file.close();
 
-    cvCreateTrackbar("B Max", "Control Box", &maxvalue_B, 255, NULL);
-    cvCreateTrackbar("G Max", "Control Box", &maxvalue_G, 255, NULL);
-    cvCreateTrackbar("R Max", "Control Box", &maxvalue_R, 255, NULL);
-    cvCreateTrackbar("B Min", "Control Box", &minvalue_B, 255, NULL);
-    cvCreateTrackbar("G Min", "Control Box", &minvalue_G, 255, NULL);
-    cvCreateTrackbar("R Min", "Control Box", &minvalue_R, 255, NULL);
-    cvCreateTrackbar("Vote", "Control Box", &vote, 50, NULL);
-    cvCreateTrackbar("Length", "Control Box", &length, 100, NULL);
-    cvCreateTrackbar("Merge", "Control Box", &mrg, 15, NULL);
-    cvCreateTrackbar("Canny Kernel", "Control Box", &canny_kernel, 10, NULL);
-    cvCreateTrackbar("High Canny Threshold", "Control Box", &high_threshold, 2000, NULL);
-    cvCreateTrackbar("Low Canny Threshold", "Control Box", &low_threshold, 2000, NULL);
+    cvCreateTrackbar("B Max", "Control Box", &maxvalue_B, 255, &writeVal);
+    cvCreateTrackbar("G Max", "Control Box", &maxvalue_G, 255, &writeVal);
+    cvCreateTrackbar("R Max", "Control Box", &maxvalue_R, 255, &writeVal);
+    cvCreateTrackbar("B Min", "Control Box", &minvalue_B, 255, &writeVal);
+    cvCreateTrackbar("G Min", "Control Box", &minvalue_G, 255, &writeVal);
+    cvCreateTrackbar("R Min", "Control Box", &minvalue_R, 255, &writeVal);
+    cvCreateTrackbar("Vote", "Control Box", &vote, 50, &writeVal);
+    cvCreateTrackbar("Length", "Control Box", &length, 100, &writeVal);
+    cvCreateTrackbar("Merge", "Control Box", &mrg, 15, &writeVal);
+    cvCreateTrackbar("Canny Kernel", "Control Box", &canny_kernel, 10, &writeVal);
+    cvCreateTrackbar("High Canny Threshold", "Control Box", &high_threshold, 2000, &writeVal);
+    cvCreateTrackbar("Low Canny Threshold", "Control Box", &low_threshold, 2000, &writeVal);
 
     //Destination variables
     int widthInCM = 100, h1 = 62, h2 = 135; //width and height of the lane. width:widthoflane/scale;
@@ -307,4 +312,22 @@ IplImage* LaneDetection::joinResult(IplImage* color_gray, IplImage* hough_gray) 
     }
     
     return lane_gray;
+}
+
+void LaneDetection::writeVal(int val){
+    fstream file;
+    file.open("../src/Modules/Lane/parameters.txt", ios::out);
+    file<<cvGetTrackbarPos("B Max", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("G Max", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("R Max", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("B Min", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("G Min", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("R Min", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("Vote", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("Length", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("Merge", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("Canny Kernel", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("High Canny Threshold", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("Low Canny Threshold", "Control Box")<<endl;
+    file.close();
 }

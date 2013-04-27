@@ -31,3 +31,4 @@ rosbuild_genmsg()
 
 rosbuild_add_executable(serial_encoder_publisher src/encoder_publisher.cpp src/serial_encoder.cpp src/serial_lnx.cpp)
 rosbuild_add_executable(roboteq_encoder_publisher src/encoder_publisher.cpp src/roboteq_encoder.cpp)
+rosbuild_add_executable(dummy_encoder_publisher src/encoder_publisher.cpp src/dummy_encoder.cpp)

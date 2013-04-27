@@ -9,10 +9,15 @@ namespace odometry_space {
 	class OdometryFactory {
 		
 		private:
-		time_t time;
+		int sequence_id;
+		ros::Time last_time, current_time;
+		ros::Duration duration;
+		double pose_covariance_matrix[36];
+		double twist_covariance_matrix[36];
 		
 		public:
-		nav_msgs::Odometry getOdometryData(encoder_space::EncoderData);
+		OdometryFactory();
+		nav_msgs::Odometry getOdometryData(const eklavya_encoder::Encoder_Data::ConstPtr&);
 		void encoderCallback(nav_msgs::Odometry::ConstPtr& msg);
 		
 	};

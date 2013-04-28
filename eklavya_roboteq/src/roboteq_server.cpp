@@ -64,6 +64,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     
     string response = "";
+
 	status = device.Connect("/dev/serial/by-id/usb-Roboteq_Motor_Controller_498954A73235-if00");
 	//status = device.Connect("/dev/ttyACM0");
 

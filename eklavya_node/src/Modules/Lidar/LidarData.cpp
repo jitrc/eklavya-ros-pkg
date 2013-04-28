@@ -142,7 +142,7 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
 
  for (int i = 0; i < MAP_MAX; i++) {
         for (int j = 0; j < MAP_MAX; j++) {
-            lidar_map2[i][j] = IMGDATA(img, MAP_MAX - j - 1, i, 0);
+            lidar_map[i][j] = IMGDATA(img, MAP_MAX - j - 1, i, 0);
         }
     }
 

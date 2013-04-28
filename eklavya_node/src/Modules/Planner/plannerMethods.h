@@ -10,7 +10,7 @@
  */
 
 #define PID_MODE 0
-#define DistTransform
+//#define DistTransform
 #define SIMCTL
 #define SIM_SEEDS
 //#define DEBUG

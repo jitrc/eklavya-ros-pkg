@@ -14,6 +14,9 @@ namespace odometry_space {
 		ros::Duration duration;
 		double pose_covariance_matrix[36];
 		double twist_covariance_matrix[36];
+		nav_msgs::Odometry previous;
+		
+		double wheel_separation;
 		
 		public:
 		OdometryFactory();

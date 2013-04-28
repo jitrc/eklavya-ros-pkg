@@ -1,10 +1,17 @@
 #include <eklavya_odometry/odometry.h>
-#include <tf/tf.h>
 
 namespace odometry_space {
 	
 	OdometryFactory::OdometryFactory() {
 		sequence_id = 0;
+		
+		position_x = 0;
+		position_y = 0;
+		yaw = 0;
+		
+		velocity_x = 0.01;
+		yaw_rate = 0.001;
+		
 		for (int i = 0; i < 36; i++) {
 			if (i/6 == i%6) {
 				pose_covariance_matrix[i] = 1;
@@ -17,59 +24,79 @@ namespace odometry_space {
 		wheel_separation = 0.55;
 	}
 
-	nav_msgs::Odometry OdometryFactory::getOdometryData(const eklavya_encoder::Encoder_Data::ConstPtr& msg) {
-		nav_msgs::Odometry odometryData;
-		double current_yaw;
+	void OdometryFactory::updateOdometryData(const eklavya_encoder::Encoder_Data::ConstPtr& msg) {
+				
+		velocity_x = (msg->left_count + msg->right_count)/2;
+		yaw_rate = (msg->left_count - msg->right_count)/wheel_separation;
+		
+	}
+	
+	nav_msgs::Odometry OdometryFactory::getOdometryData() {
+		
+		nav_msgs::Odometry odometry_message;
 		
 		if (sequence_id == 0) {
 			last_time = ros::Time::now();
 		}
-	
+		
 		current_time = ros::Time::now();
 		duration = current_time - last_time;
 		
+		position_x += velocity_x * cos(yaw) * duration.toSec();
+		position_y += velocity_x * sin(yaw) * duration.toSec();
+		yaw += yaw_rate * duration.toSec();
+		
+		quaternion = tf::createQuaternionMsgFromYaw(yaw);
+		
+		//tf update	
+		transform_stamped.header.stamp = current_time;
+		transform_stamped.header.frame_id = "odom";
+		transform_stamped.child_frame_id = "base_link";
+		
+		transform_stamped.transform.translation.x = position_x;
+		transform_stamped.transform.translation.y = position_y;
+		transform_stamped.transform.translation.z = 0;
+		transform_stamped.transform.rotation = quaternion;
+		
+		//tf broadcast
+		odom_broadcaster.sendTransform(transform_stamped);
+		
+		//Odometry message update
 		//Header
-		odometryData.header.seq = sequence_id++;
-		odometryData.header.stamp = current_time;
-		odometryData.header.frame_id = "/map";
-	
-		//Child frame
-		odometryData.child_frame_id = "/base_link";
+		odometry_message.header.seq = sequence_id++;
+		odometry_message.header.stamp = current_time;
+		odometry_message.header.frame_id = "odom";
+		
+		//Child Frame
+		odometry_message.child_frame_id = "base_link";
 		
 		//Twist
-		odometryData.twist.twist.linear.x = (msg->left_count + msg->right_count)/2;
-		odometryData.twist.twist.linear.y = 0;  //Fixed
-		odometryData.twist.twist.linear.z = 0;  //Fixed
+		odometry_message.twist.twist.linear.x = velocity_x;
+		odometry_message.twist.twist.linear.y = 0;  //Fixed
+		odometry_message.twist.twist.linear.z = 0;  //Fixed
 		
-		odometryData.twist.twist.angular.x = 0; //Fixed
-		odometryData.twist.twist.angular.y = 0; //Fixed
-		odometryData.twist.twist.angular.z = (msg->left_count - msg->right_count)/wheel_separation;
+		odometry_message.twist.twist.angular.x = 0; //Fixed
+		odometry_message.twist.twist.angular.y = 0; //Fixed
+		odometry_message.twist.twist.angular.z = yaw_rate;
 		
 		for (int i = 0; i < 36; i++) {
-			odometryData.twist.covariance[i] = twist_covariance_matrix[i];
+			odometry_message.twist.covariance[i] = twist_covariance_matrix[i];
 		}
 		
-		//Orientation conversions and computations
-		tf::quaternionMsgToTF(previous.pose.pose.orientation, q);
-		tf::Matrix3x3(q).getRPY(roll, pitch, yaw);
-		ROS_DEBUG("RPY = (%lf, %lf, %lf)", roll, pitch, yaw);
-		current_yaw = yaw + odometryData.twist.twist.angular.z * duration.toSec();
-	
 		//Pose
-		odometryData.pose.pose.position.x = previous.pose.pose.position.x + odometryData.twist.twist.linear.x * cos(current_yaw) * duration.toSec();	//Angle conversion
-		odometryData.pose.pose.position.y = previous.pose.pose.position.y + odometryData.twist.twist.linear.y * sin(current_yaw) * duration.toSec();	//Angle conversion
-		odometryData.pose.pose.position.z = 0; //Fixed
+		odometry_message.pose.pose.position.x = position_x;
+		odometry_message.pose.pose.position.y = position_y;
+		odometry_message.pose.pose.position.z = 0; //Fixed
 		
-		q = tf::createQuaternionFromYaw(current_yaw);
-		tf::quaternionTFToMsg(q, odometryData.pose.pose.orientation);
+		odometry_message.pose.pose.orientation = quaternion;
 				
 		for (int i = 0; i < 36; i++) {
-			odometryData.pose.covariance[i] = pose_covariance_matrix[i];
+			odometry_message.pose.covariance[i] = pose_covariance_matrix[i];
 		}
 		
-		previous = odometryData;
+		last_time = current_time;
 	
-		return odometryData;
+		return odometry_message;
 	}
 	
 }

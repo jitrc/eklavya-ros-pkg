@@ -4,6 +4,7 @@
 #include <nav_msgs/Odometry.h>
 #include <eklavya_encoder/encoder.h>
 #include <tf/tf.h>
+#include <tf/transform_broadcaster.h>
 
 namespace odometry_space {
 	
@@ -11,20 +12,30 @@ namespace odometry_space {
 		
 		private:
 		int sequence_id;
-		ros::Time last_time, current_time;
-		ros::Duration duration;
 		double pose_covariance_matrix[36];
 		double twist_covariance_matrix[36];
-		nav_msgs::Odometry previous;
+		
+		geometry_msgs::TransformStamped transform_stamped;
+		tf::TransformBroadcaster odom_broadcaster;
+		
+		ros::Time last_time, current_time;
+		ros::Duration duration;
+	
+		geometry_msgs::Quaternion quaternion;
 		
 		double wheel_separation;
-		
-		tf::Quaternion q;
-		double roll, pitch, yaw;
+
+		double position_x;
+		double position_y;
+		double yaw;
+
+		double velocity_x;
+		double yaw_rate;
 		
 		public:
 		OdometryFactory();
-		nav_msgs::Odometry getOdometryData(const eklavya_encoder::Encoder_Data::ConstPtr&);
+		void updateOdometryData(const eklavya_encoder::Encoder_Data::ConstPtr&);
+		nav_msgs::Odometry getOdometryData();
 		void encoderCallback(nav_msgs::Odometry::ConstPtr& msg);
 		
 	};

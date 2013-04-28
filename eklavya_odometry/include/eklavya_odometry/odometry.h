@@ -3,6 +3,7 @@
 
 #include <nav_msgs/Odometry.h>
 #include <eklavya_encoder/encoder.h>
+#include <tf/tf.h>
 
 namespace odometry_space {
 	
@@ -17,6 +18,9 @@ namespace odometry_space {
 		nav_msgs::Odometry previous;
 		
 		double wheel_separation;
+		
+		tf::Quaternion q;
+		double roll, pitch, yaw;
 		
 		public:
 		OdometryFactory();

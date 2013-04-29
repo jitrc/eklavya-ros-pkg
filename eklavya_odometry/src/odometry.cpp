@@ -79,9 +79,9 @@ namespace odometry_space {
 		odometry_message.twist.twist.angular.y = 0; //Fixed
 		odometry_message.twist.twist.angular.z = yaw_rate;
 		
-		for (int i = 0; i < 36; i++) {
+		/*for (int i = 0; i < 36; i++) {
 			odometry_message.twist.covariance[i] = twist_covariance_matrix[i];
-		}
+		}*/
 		
 		//Pose
 		odometry_message.pose.pose.position.x = position_x;
@@ -90,9 +90,9 @@ namespace odometry_space {
 		
 		odometry_message.pose.pose.orientation = quaternion;
 				
-		for (int i = 0; i < 36; i++) {
+		/*for (int i = 0; i < 36; i++) {
 			odometry_message.pose.covariance[i] = pose_covariance_matrix[i];
-		}
+		}*/
 		
 		last_time = current_time;
 	

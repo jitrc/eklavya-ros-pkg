@@ -24,7 +24,7 @@
     <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin, navigation stack depends on this frame -->
     <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin,
              navigation stack depends on this frame -->
-	<link name="base_footprint">
+	<link name="base_footprint" parent="odom">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>

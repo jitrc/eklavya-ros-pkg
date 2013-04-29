@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
         message.right_count = encoder_data.rightCount;
         
         /* Publish message to the topic */
-        ROS_INFO("Publishing encoder data...");
+        ROS_INFO("Publishing encoder data : left = %d, right = %d", message.left_count, message.right_count);
         encoder_publisher.publish(message);
 
         usleep(10);

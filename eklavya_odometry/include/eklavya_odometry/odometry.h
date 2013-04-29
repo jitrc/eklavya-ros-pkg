@@ -15,7 +15,6 @@ namespace odometry_space {
 		double pose_covariance_matrix[36];
 		double twist_covariance_matrix[36];
 		
-		geometry_msgs::TransformStamped transform_stamped;
 		tf::TransformBroadcaster odom_broadcaster;
 		
 		ros::Time last_time, current_time;

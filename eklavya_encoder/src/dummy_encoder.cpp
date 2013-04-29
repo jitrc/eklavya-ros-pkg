@@ -16,8 +16,31 @@ namespace encoder_space {
 		
 		EncoderData returnValue;
 		
-		leftSpeed += (rand()%3 - 1);
-		rightSpeed += (rand()%3 - 1);
+		int random = rand()%50;
+		
+		if (random < 2) {
+			leftSpeed ++;
+		} else if (random < 4) {
+			rightSpeed++;
+		} else if (random < 6) {
+			leftSpeed --;
+		} else if (random < 8) {
+			rightSpeed--;
+		} else if (random < 18) {
+			leftSpeed ++;
+			rightSpeed++;
+		} else if (random < 28) {
+			leftSpeed --;
+			rightSpeed--;
+		}
+		
+		if (leftSpeed > 30) {
+			leftSpeed = 30;
+		}
+		
+		if (rightSpeed > 30) {
+			rightSpeed = 30;
+		}
 		
 		if (leftSpeed < 0) {
 			leftSpeed = 0;
@@ -27,10 +50,18 @@ namespace encoder_space {
 			rightSpeed = 0;
 		}
 		
+		if (leftSpeed - rightSpeed > 10) {
+			rightSpeed = leftSpeed - 10;
+		}
+		
+		if (rightSpeed - leftSpeed > 10) {
+			leftSpeed = rightSpeed -10;
+		}
+		
 		returnValue.leftCount = leftSpeed;
 		returnValue.rightCount = rightSpeed;
 		
-		usleep(1000);
+		usleep(50000);
 		
 		return returnValue;
 		

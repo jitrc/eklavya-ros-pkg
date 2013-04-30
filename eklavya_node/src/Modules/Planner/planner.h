@@ -17,7 +17,7 @@
 
 extern char** local_map;
 //extern IplImage* map_img;
-extern cv::Mat map_img;
+//extern cv::Mat map_img;
 
 
 namespace planner_space {

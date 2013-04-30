@@ -57,7 +57,7 @@ typedef struct Odom {
 extern Pose pose; // Shared by IMU, EKF
 extern LatLong lat_long; // Shared by GPS, EKF
 extern Odom odom; // Shared by Encoder, EKF
-extern unsigned char lidar_map[MAP_MAX][MAP_MAX]; // Shared by Lidar, Planner
+extern unsigned char lidar_map[MAP_MAX][MAP_MAX];
 extern unsigned char camera_map[MAP_MAX][MAP_MAX]; // Used by Camera
 extern unsigned char global_map[MAP_MAX][MAP_MAX];
 extern Triplet bot_location; // Shared by EKF, Planner

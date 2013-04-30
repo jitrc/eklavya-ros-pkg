@@ -30,6 +30,6 @@ rosbuild_gensrv()
 #target_link_libraries(example ${PROJECT_NAME})
 
 rosbuild_add_executable(server src/roboteq_server.cpp src/RoboteqDevice.cpp)
-rosbuild_add_executable(client src/roboteq_client.cpp)
+rosbuild_add_executable(test_controller_client src/roboteq_client.cpp)
 rosbuild_add_executable(encoder_client src/roboteq_encoder_client.cpp)
-rosbuild_add_executable(encoder_controller_client src/command_subscriber_roboteq_client.cpp)
+rosbuild_add_executable(eklavya_controller_client src/command_subscriber_roboteq_client.cpp)

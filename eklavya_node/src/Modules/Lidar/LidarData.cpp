@@ -59,7 +59,19 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
     //TODO: Fusion needs to be implemented in the STRATEGY module
 
     //initialize variables
-    int minblob_lidar = 250;
+    if (DEBUG){
+        cvNamedWindow("Control Box", 1);
+    }
+    
+    int minblob_lidar = 250, s=5;
+    fstream file;
+    file.open("../src/Modules/Lidar/lidar_parameters.txt", ios::in);
+    file>>minblob_lidar>>s;
+    file.close();
+
+    cvCreateTrackbar("minblob_lidar", "Control Box", &minblob_lidar, 1000, &writeVal);
+    cvCreateTrackbar("kernel 1", "Control Box", &s, 20, &writeVal);
+        
     IplImage *img, *nblobs, *nblobs1, *labelImg;
     img = cvCreateImage(cvSize(MAP_MAX, MAP_MAX), 8, 1);
     cvSet(img, cvScalar(0));
@@ -110,7 +122,7 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
             nblobs1 = cvCreateImage(cvSize(MAP_MAX, MAP_MAX), 8, 3);
             cvSet(labelImg, cvScalar(0));
 
-            ker1 = cvCreateStructuringElementEx(5, 5, 2, 2, CV_SHAPE_ELLIPSE);
+            ker1 = cvCreateStructuringElementEx(s, s, 2, 2, CV_SHAPE_ELLIPSE);
             ker2 = cvCreateStructuringElementEx(7, 7, 3, 3, CV_SHAPE_ELLIPSE);
             cvDilate(img, img, ker1, 1);
             //cvErode(filtered_img,filtered_img,ker2,1);
@@ -158,6 +170,14 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
     }
     pthread_mutex_unlock(&lidar_map_mutex);
     cvReleaseImage(&img);
+}
+
+void LidarData::writeVal(int val){
+    fstream file;
+    file.open("../src/Modules/Lidar/lidar_parameters.txt", ios::out);
+    file<<cvGetTrackbarPos("minblob_lidar", "Control Box")<<endl;
+    file<<cvGetTrackbarPos("kernel 1", "Control Box")<<endl;
+    file.close();
 }
 
 LidarData::~LidarData() {

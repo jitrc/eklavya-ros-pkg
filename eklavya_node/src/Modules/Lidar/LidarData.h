@@ -7,6 +7,7 @@
 #include "../../eklavya2.h"
 #include <opencv2/core/types_c.h>
 #include "sensor_msgs/LaserScan.h"
+#include <fstream>
 
 using namespace std;
 
@@ -17,6 +18,7 @@ class LidarData {
 public:
     LidarData(string serial_name);
     static void update_map(const sensor_msgs::LaserScan&);
+    static void writeVal(int val);
     virtual ~LidarData();
 
 private:

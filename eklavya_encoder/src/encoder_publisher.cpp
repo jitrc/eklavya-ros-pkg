@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
     ros::Publisher encoder_publisher = n.advertise<eklavya_encoder::Encoder_Data>(publisher_name, (uint32_t) 30, true);
     eklavya_encoder::Encoder_Data message;
     
-    printf("Encoder node initialized...");
+    ROS_INFO("Encoder node initialized...");
     
     while (ros::ok()) {
         /* Fetch data from Shaft Encoder and load it in local vars */
@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
         message.right_count = encoder_data.rightCount;
         
         /* Publish message to the topic */
+        ROS_INFO("Publishing encoder data : left = %d, right = %d", message.left_count, message.right_count);
         encoder_publisher.publish(message);
 
         usleep(10);

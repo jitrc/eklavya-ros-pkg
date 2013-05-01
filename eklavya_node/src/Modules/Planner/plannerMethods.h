@@ -301,10 +301,12 @@ typedef struct state { // elemental data structure of openset
             case 0:
             {
                 double vavg = 45;
-                double aggression = 1;
+                double aggression = 2;
                 //s.k = s.k < 1 ? s.k / aggression : s.k * aggression;
                 left_vel = (int) 2 * vavg * s.k / (1 + s.k);
+                left_vel = left_vel % 80;
                 right_vel = (int) (2 * vavg - left_vel);
+                right_vel = right_vel % 80;
                 break;
             }
             case 1:

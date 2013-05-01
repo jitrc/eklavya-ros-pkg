@@ -1,11 +1,25 @@
 <?xml version="1.0"?>
- <launch>
- <param name="robot_description" command="$(find xacro)/xacro.py '$(find eklavya_description)/urdf/eklavya.urdf.xacro'"/>
+<launch>
+	<param name="robot_description" command="$(find xacro)/xacro.py '$(find eklavya_description)/urdf/eklavya.urdf.xacro'"/>
 
-   <arg name="gui" default="True" />
-   <param name="use_gui" value="$(arg gui)"/>
-   	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+	<arg name="gui" default="True" />
+	<param name="use_gui" value="$(arg gui)"/>
+	
+	<node pkg="eklavya_odometry" type="odometry" name="odometry"/>
+   
+	<node pkg="robot_pose_ekf" type="robot_pose_ekf" name="robot_pose_ekf">
+		<param name="output_frame" value="odom"/>
+		<param name="freq" value="30.0"/>
+		<param name="sensor_timeout" value="1.0"/>
+		<param name="odom_used" value="true"/>
+		<param name="imu_used" value="false"/>
+		<param name="vo_used" value="false"/>
+		<param name="debug" value="false"/>
+		<param name="self_diagnose" value="false"/>
+	</node>
+   
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
 	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
 
    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find eklavya_description)/rviz/rviz_display_model.vcg" />
- </launch>
+</launch>

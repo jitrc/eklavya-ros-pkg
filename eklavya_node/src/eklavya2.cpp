@@ -22,7 +22,6 @@ LatLong lat_long; // Shared by GPS, EKF
 Odom odom; // Shared by Encoder, EKF
 
 unsigned char lidar_map[MAP_MAX][MAP_MAX]; // Shared by Lidar, Planner
-unsigned char lidar_map2[MAP_MAX][MAP_MAX];
 unsigned char camera_map[MAP_MAX][MAP_MAX]; // by Camera for lane
 unsigned char global_map[MAP_MAX][MAP_MAX]; // merged without dilate
 

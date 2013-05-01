@@ -24,7 +24,7 @@
     <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin, navigation stack depends on this frame -->
     <!-- base_footprint is a fictitious link(frame) that is on the ground right below base_link origin,
              navigation stack depends on this frame -->
-	<link name="base_footprint">
+	<link name="base_footprint" parent="odom">
 		<visual>
 			<origin xyz="0 0 0" rpy="0 0 0" />
 			<geometry>
@@ -48,7 +48,7 @@
 
     <!-- BASE-LINK -->
     <!--Actual body/chassis of the robot-->
-    <link name="base_link">
+    <link name="base_link" parent="base_footprint">
 	<!--<box_inertial_with_origin x="${base_x_size}" y="${base_y_size}" z="${base_z_size}" mass="${base_mass}" origin="0 0 ${base_z_size/2}" />
       -->
       <inertial>

@@ -9,9 +9,11 @@ void commandVelocityCallback(const geometry_msgs::Twist::ConstPtr& msg) {
 	eklavya_roboteq::SetSpeed srv;
 	
 	int sum = msg->linear.x * 100, diff = (msg->angular.z * 55)/2;
-	srv.request.left_speed = sum + diff;
-	srv.request.right_speed = sum - diff;
-	
+	//srv.request.left_speed = (sum + diff) * 10;
+	//srv.request.right_speed = (sum - diff) * 10;
+	srv.request.right_speed = (sum + diff) * 10;
+	srv.request.left_speed = (sum - diff) * 10;
+	std::cout<<"  !m  "<<srv.request.left_speed<< " " << srv.request.right_speed<<std::endl;
 	if (client->call(srv))
 	{
 		ROS_INFO("Speed target set to : %ld, %ld", (long int)srv.request.left_speed, (long int)srv.request.right_speed);

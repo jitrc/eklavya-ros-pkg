@@ -59,7 +59,7 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
     //TODO: Fusion needs to be implemented in the STRATEGY module
 
     //initialize variables
-    int minblob_lidar = 250;
+    int minblob_lidar = 125;
     IplImage *img, *nblobs, *nblobs1, *labelImg;
     img = cvCreateImage(cvSize(MAP_MAX, MAP_MAX), 8, 1);
     cvSet(img, cvScalar(0));
@@ -140,6 +140,12 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
         }
     }
 
+ for (int i = 0; i < MAP_MAX; i++) {
+        for (int j = 0; j < MAP_MAX; j++) {
+            lidar_map2[i][j] = IMGDATA(img, MAP_MAX - j - 1, i, 0);
+        }
+    }
+
     ker1 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_ELLIPSE);
     cvDilate(img, img, ker1, EXPAND_ITER);
     cvReleaseStructuringElement(&ker1);
@@ -156,6 +162,8 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
             lidar_map[i][j] = IMGDATA(img, MAP_MAX - j - 1, i, 0);
         }
     }
+
+ 
     pthread_mutex_unlock(&lidar_map_mutex);
     cvReleaseImage(&img);
 }

@@ -24,7 +24,9 @@ namespace IMUspace {
 
         pose.orientation.x = (double) roll * 180 / 3.14;
         pose.orientation.y = (double) pitch * 180 / 3.14;
-        pose.orientation.z = (double) yaw * 180 / 3.14; // Yaw
+        pose.orientation.z = (double) yaw * 180 / 3.14; // Yawollo
+        
+        cout<<"%f"<<roll;cout<<"  %f"<<yaw;cout<<"  %f"<<pitch<<endl;
 
         pthread_mutex_unlock(&pose_mutex);
     }

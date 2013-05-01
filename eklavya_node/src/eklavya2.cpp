@@ -22,8 +22,10 @@ LatLong lat_long; // Shared by GPS, EKF
 Odom odom; // Shared by Encoder, EKF
 
 unsigned char lidar_map[MAP_MAX][MAP_MAX]; // Shared by Lidar, Planner
+unsigned char lidar_map2[MAP_MAX][MAP_MAX];
 unsigned char camera_map[MAP_MAX][MAP_MAX]; // by Camera for lane
-unsigned char global_map[MAP_MAX][MAP_MAX]; // by Camera for lane
+unsigned char global_map[MAP_MAX][MAP_MAX]; // merged without dilate
+
 
 Triplet bot_location; // Shared by EKF, Planner
 Triplet target_location; // Shared by EKF, Planner
@@ -116,12 +118,15 @@ void startThreads() {
 
         case HectorSLAM:
             startThread(&imu_id, &attr, &imu_thread);
-            startThread(&lidar_id, &attr, &lidar_thread);
-            startThread(&slam_id, &attr, &slam_thread);
+            //startThread(&lidar_id, &attr, &lidar_thread);
+            //startThread(&slam_id, &attr, &slam_thread);
             break;
 
         case LaserTestOnly:
             startThread(&lidar_id, &attr, &lidar_thread);
+            startThread(&lane_id, &attr, &lane_thread);
+            //startThread(&fusion_id, &attr, &fusion_thread);
+            startThread(&fusion_id, &attr, &fusion_thread);
             startThread(&planner_id, &attr, &planner_thread);
             break;
 
@@ -131,7 +136,8 @@ void startThreads() {
 
         case FusionTestOnly:
             startThread(&lane_id, &attr, &lane_thread);
-            // startThread(&fusion_id, &attr, &fusion_thread);
+            startThread(&fusion_id, &attr, &fusion_thread);
+            startThread(&planner_id, &attr, &planner_thread);
             break;
 
         case IGVCBasic:

@@ -80,9 +80,12 @@ void *planner_thread(void *arg) {
         my_target_location.y = randy;
         my_target_location.z = 90;
 #else
-        pthread_mutex_lock(&target_location_mutex);
-        my_target_location = target_location; // Target
-        pthread_mutex_unlock(&target_location_mutex);
+        //pthread_mutex_lock(&target_location_mutex);
+        //my_target_location = target_location; // Target
+        //pthread_mutex_unlock(&target_location_mutex);
+	my_target_location.x = 500;
+	my_target_location.y = 900;
+	my_target_location.z = 90;
 #endif
 
         pthread_mutex_lock(&global_map_mutex);
@@ -95,26 +98,27 @@ void *planner_thread(void *arg) {
                 // ptr[3 * i1 + 2] = global_map[i][j];
                 // local_map[i][j] = global_map[i][j];
                 int j1 = MAP_MAX - 1 - j;
-                map_img.at<cv::Vec2b>(i,j1)[0] = global_map[i][j];                    
-                map_img.at<cv::Vec2b>(i,j1)[1] = global_map[i][j];                    
-                map_img.at<cv::Vec2b>(i,j1)[2] = global_map[i][j];                    
+                map_img.at<cv::Vec3b>(j1,i)[0] = global_map[i][j];                    
+                map_img.at<cv::Vec3b>(j1,i)[1] = global_map[i][j];                    
+                map_img.at<cv::Vec3b>(j1,i)[2] = global_map[i][j];                    
                 local_map[i][j] = global_map[i][j];
 
             }
         }
         pthread_mutex_unlock(&global_map_mutex);
 
-        // cv::imshow("[PLANNER] Map", map_img);
+         //cv::imshow("[PLANNER] Map", map_img);
         // cvWaitKey(WAIT_TIME);
       
-        // my_bot_location.x=500;
-        // my_bot_location.y=100;
-        // my_bot_location.z=90;
+         my_bot_location.x=500;
+         my_bot_location.y=100;
+         my_bot_location.z=90;
         // my_target_location.x=500;
         // my_target_location.y=901;
         // my_target_location.z=90;
+				cmdvel=planner_space::Planner::findPath(my_bot_location, my_target_location,map_img);
+					cout<<"bot point "<<cmdvel.linear.x<<" "<<cmdvel.angular.z<<endl;
 
-        cmdvel=planner_space::Planner::findPath(my_bot_location, my_target_location,map_img);
 	 vel_pub.publish(cmdvel);
 
         loop_rate.sleep();

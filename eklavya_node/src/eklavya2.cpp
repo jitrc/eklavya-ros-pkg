@@ -103,6 +103,7 @@ void startThreads() {
         case FollowNose: // Follow a straight line while avoiding obstacles
             startThread(&imu_id, &attr, &imu_thread);
             startThread(&lidar_id, &attr, &lidar_thread);
+            startThread(&fusion_id, &attr, &fusion_thread);
             startThread(&navigation_id, &attr, &navigation_thread);
             startThread(&planner_id, &attr, &planner_thread);
             break;

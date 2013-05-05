@@ -6,53 +6,17 @@
  *  1: Blob filter
  */
 
-#define FILTER 0
+#define FILTER 1
 #define DEBUG 1
 
 #define CENTERX 500
 #define CENTERY 100
 #define HOKUYO_SCALE 100
 #define RADIUS 80
-#define EXPAND_ITER 60
+#define EXPAND_ITER 70
 #define intensity(img,i,j,n) *(uchar*)(img->imageData + img->widthStep*i + j*img->nChannels + n) 
 #define IMGDATA(image,i,j,k) (((uchar *)image->imageData)[(i)*(image->widthStep) + (j)*(image->nChannels) + (k)])
 #define IMGDATAG(image,i,j) (((uchar *)image->imageData)[(i)*(image->widthStep) + (j)])
-
-int checksum(char **localmap, int x, int y) {
-    int threshold = 3;
-    int win_size = 4;
-    int sum = 0;
-    for (int i = x - win_size; i < x + win_size; i++) {
-        for (int j = y - win_size; j < y + win_size; j++) {
-            if (i < 950 - RADIUS && i > RADIUS + 50 && j > RADIUS && j < 875 - RADIUS) {
-                if (j > CENTERX + 5) {
-                    if (localmap[i][j] == 1)
-                        sum++;
-                }
-            }
-        }
-    }
-    if (sum >= threshold)
-        return 1;
-    else
-        return 0;
-
-}
-
-void LidarData::createCircle(int x, int y) {
-    //TODO: optimize using circle drawing alogrithm    
-    for (int i = -RADIUS; i < RADIUS; i++) {
-        if ((x + i >= 0) && (x + i <= MAP_MAX)) {
-            for (int j = -RADIUS; j < RADIUS; j++) {
-                if ((y + j >= 0) && (y + j <= MAP_MAX)) {
-                    if (i * i + j * j <= RADIUS * RADIUS) {
-                        lidar_map[x + i][y + j] = 255;
-                    }
-                }
-            }
-        }
-    }
-}
 
 void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
 
@@ -63,7 +27,7 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
         cvNamedWindow("Control Box", 1);
     }
     
-    int minblob_lidar = 250, s=5;
+    int minblob_lidar = 150, s=5;
     fstream file;
     file.open("../src/Modules/Lidar/lidar_parameters.txt", ios::in);
     file>>minblob_lidar>>s;
@@ -108,6 +72,11 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
         angle += scan.angle_increment;
     }
 
+	if (DEBUG) {
+                cvNamedWindow("Raw Scan", 0);
+                cvShowImage("Raw Scan", img);
+                cvWaitKey(WAIT_TIME);
+            }
     //Filtering
 
     switch (FILTER) {
@@ -152,12 +121,6 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
         }
     }
 
- for (int i = 0; i < MAP_MAX; i++) {
-        for (int j = 0; j < MAP_MAX; j++) {
-            lidar_map[i][j] = IMGDATA(img, MAP_MAX - j - 1, i, 0);
-        }
-    }
-
     ker1 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_ELLIPSE);
     cvDilate(img, img, ker1, EXPAND_ITER);
     cvReleaseStructuringElement(&ker1);
@@ -174,8 +137,6 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
             lidar_map[i][j] = IMGDATA(img, MAP_MAX - j - 1, i, 0);
         }
     }
-
- 
     pthread_mutex_unlock(&lidar_map_mutex);
     cvReleaseImage(&img);
 }

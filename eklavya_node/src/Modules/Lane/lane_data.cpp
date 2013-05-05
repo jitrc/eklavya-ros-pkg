@@ -267,33 +267,21 @@ void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
     if (DEBUG) {
         cvSetMouseCallback("view", &mouseHandler, 0);
         cvShowImage("view", lane);
-        cvWaitKey(10);
+        cvWaitKey(WAIT_TIME);
     }
 
     warp_img = cvCreateImage(cvSize(MAP_MAX, MAP_MAX), img->depth, 1);
-
     cvWarpPerspective(lane, warp_img, warp_matrix, CV_INTER_LINEAR | CV_WARP_INVERSE_MAP | CV_WARP_FILL_OUTLIERS);
-
-    //May or may not be required depends upon the results.
-    //warp_img = getLaneLines(warp_img);
-    //cvDilate(warp_img,warp_img,0,10);
-    //getDestinationPosition(warp_img);
-
-
-
-      ker1 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_ELLIPSE);
-
-     cvDilate(warp_img, warp_img, ker1, 25);
-    //cvReleaseStructuringElement(&ker1);
-    populateLanes(warp_img);
+	
     if (DEBUG) {
         cvShowImage("warp", warp_img);
         cvWaitKey(10);
     }
-    //Release warp_img and input frame and lane.
+    ker1 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_ELLIPSE);
+    cvDilate(warp_img, warp_img, ker1, 55);
+    populateLanes(warp_img);
 
     cvReleaseImage(&warp_img);
-//        cvReleaseImage(&img);
     cvReleaseImage(&lane);
 }
 

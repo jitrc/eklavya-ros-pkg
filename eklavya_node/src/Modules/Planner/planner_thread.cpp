@@ -80,12 +80,12 @@ void *planner_thread(void *arg) {
         my_target_location.y = randy;
         my_target_location.z = 90;
 #else
-        //pthread_mutex_lock(&target_location_mutex);
-        //my_target_location = target_location; // Target
-        //pthread_mutex_unlock(&target_location_mutex);
-	my_target_location.x = 500;
-	my_target_location.y = 900;
-	my_target_location.z = 90;
+        pthread_mutex_lock(&target_location_mutex);
+        my_target_location = target_location; // Target
+        pthread_mutex_unlock(&target_location_mutex);
+	//my_target_location.x = 500;
+	//my_target_location.y = 900;
+	//my_target_location.z = 90;
 #endif
 
         pthread_mutex_lock(&global_map_mutex);
@@ -108,7 +108,7 @@ void *planner_thread(void *arg) {
         pthread_mutex_unlock(&global_map_mutex);
 
          //cv::imshow("[PLANNER] Map", map_img);
-        // cvWaitKey(WAIT_TIME);
+         //cvWaitKey(WAIT_TIME);
       
          my_bot_location.x=500;
          my_bot_location.y=100;
@@ -116,8 +116,8 @@ void *planner_thread(void *arg) {
         // my_target_location.x=500;
         // my_target_location.y=901;
         // my_target_location.z=90;
-				cmdvel=planner_space::Planner::findPath(my_bot_location, my_target_location,map_img);
-					cout<<"bot point "<<cmdvel.linear.x<<" "<<cmdvel.angular.z<<endl;
+	cmdvel=planner_space::Planner::findPath(my_bot_location, my_target_location,map_img);
+	cout<<"bot point "<<cmdvel.linear.x<<" "<<cmdvel.angular.z<<endl;
 
 	 vel_pub.publish(cmdvel);
 

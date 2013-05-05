@@ -10,6 +10,12 @@
 #ifndef LANE_DATA_H
 #define	LANE_DATA_H
 
+extern IplImage *show_img1;
+extern IplImage *show_img2;
+extern IplImage *show_img3;
+extern IplImage *show_img4;
+
+
 class LaneDetection {
 public:
     void markLane(const sensor_msgs::ImageConstPtr& image);

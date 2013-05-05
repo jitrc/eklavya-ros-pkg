@@ -12,13 +12,12 @@
 #include <highgui.h>
 #include <iostream>
 #include <time.h>
-//using namespace cv;
-//#define MATDATA(img,x,y,n) img.at<cv::Vec3b>(x,y)[n]
+using namespace cv;
+#define MATDATA(img,x,y,n) img.at<cv::Vec3b>(x,y)[n]
 
 extern char** local_map;
-//extern IplImage* map_img;
-//extern cv::Mat map_img;
-
+extern Mat showImage1;
+extern Mat showImage2;
 
 namespace planner_space {
 

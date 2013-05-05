@@ -7,7 +7,7 @@
  */
 
 #define FILTER 1
-#define DEBUG 1
+#define DEBUG 0
 
 #define CENTERX 500
 #define CENTERY 100
@@ -74,6 +74,7 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
 
 	if (DEBUG) {
                 cvNamedWindow("Raw Scan", 0);
+                cvResize(img, showImg1);
                 cvShowImage("Raw Scan", img);
                 cvWaitKey(WAIT_TIME);
             }
@@ -114,7 +115,8 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
 
             if (DEBUG) {
                 cvNamedWindow("Blob Filter", 0);
-                cvShowImage("Blob Filter", img);
+                cvResize(img, showImg2);
+                cvShowImage("Blob Filter", showImg2);
                 cvWaitKey(WAIT_TIME);
             }
             break;
@@ -127,7 +129,8 @@ void LidarData::update_map(const sensor_msgs::LaserScan& scan) {
 
     if (DEBUG) {
         cvNamedWindow("Dilate Filter", 0);
-        cvShowImage("Dilate Filter", img);
+        cvResize(img, showImg3);
+        cvShowImage("Dilate Filter", showImg3);
         cvWaitKey(WAIT_TIME);
     }
 

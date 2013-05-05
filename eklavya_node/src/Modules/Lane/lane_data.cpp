@@ -38,7 +38,6 @@ int canny_kernel = 3, high_threshold = 900, low_threshold = 550, vote = 25, leng
 int k = 90;
 
 IplImage* LaneDetection::colorBasedLaneDetection(IplImage *frame, int k) {
-    IplImage *frame_out = cvCreateImage(cvGetSize(frame), frame->depth, 1);
     int height = gray_frame->height;
     int width = gray_frame->width;
     uchar *data;
@@ -66,9 +65,9 @@ IplImage* LaneDetection::colorBasedLaneDetection(IplImage *frame, int k) {
     std_dev = sqrt(var);
     //out << "Standard Deviation: " << std_dev << endl;
     
-    cvThreshold(gray_frame, frame_out, (mean + k / 100.0 * std_dev), 255, CV_THRESH_BINARY);
+    cvThreshold(gray_frame, gray_frame, (mean + k / 100.0 * std_dev), 255, CV_THRESH_BINARY);
     
-    return frame_out;
+    return gray_frame;
 }
 
 void LaneDetection::applyHoughTransform(IplImage* img, IplImage *dst, int vote, int length, int mrgh) {
@@ -101,7 +100,9 @@ void LaneDetection::initializeLaneVariables(IplImage *input_frame) {
     kernel_frame = cvCreateImage(cvSize(gray_frame->width + N - 1, gray_frame->height + N - 1), gray_frame->depth, gray_frame->nChannels);
     edge_frame = cvCreateImage(cvGetSize(kernel_frame), IPL_DEPTH_8U, kernel_frame->nChannels);
     gray_hough_frame = cvCreateImage(cvGetSize(kernel_frame), IPL_DEPTH_8U, kernel_frame->nChannels);
-
+    warp_img = cvCreateImage(cvSize(MAP_MAX, MAP_MAX), 8, 1);
+    ker1 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_ELLIPSE);
+    
     if (DEBUG) {
         cvNamedWindow("Control Box", 1);
         cvNamedWindow("warp", 0);
@@ -180,18 +181,6 @@ IplImage *getLaneLines(IplImage* src) {
     return dst;
 }
 
-void markPixel(IplImage *img, int r, int c) {
-    int i, j;
-    uchar *data = (uchar*) img->imageData;
-    for (i = -2; i < 0; i++) {
-        for (j = -2; j < 2; j++) {
-            data[(r + i) * img->widthStep + (c + j) * img->nChannels + 0] = 255;
-            data[(r + i) * img->widthStep + (c + j) * img->nChannels + 1] = 255;
-            data[(r + i) * img->widthStep + (c + j) * img->nChannels + 2] = 255;
-        }
-    }
-}
-
 int min(int value) {
     if (value > 999) {
         return 999;
@@ -224,14 +213,15 @@ void mouseHandler(int event, int x, int y, int flags, void* param) {
 void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
     try {
         img = bridge.imgMsgToCv(image, "bgr8");
-        cvWaitKey(10);
+        cvWaitKey(WAIT_TIME);
     } catch (sensor_msgs::CvBridgeException& e) {
         ROS_ERROR("ERROR IN CONVERTING IMAGE!!!");
     }
 
     if (DEBUG) {
-        cvShowImage("view_orig", img);
-        cvWaitKey(10);
+        cvResize(img, show_img4);
+        cvShowImage("view_orig", show_img4);
+        cvWaitKey(WAIT_TIME);
     }
 
     if (iter == 0) {
@@ -251,8 +241,9 @@ void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
         lane_o.applyHoughTransform(edge_frame, gray_hough_frame, vote, length, mrg);
         //TODO: Truncate the image
         if (DEBUG) {
-            cvShowImage("Hough", gray_hough_frame);
-            cvWaitKey(1);
+             cvResize(gray_hough_frame, show_img1);
+            cvShowImage("Hough", show_img1);
+            cvWaitKey(WAIT_TIME);
         }
     }
     if (choice == 0) {
@@ -266,22 +257,22 @@ void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
 
     if (DEBUG) {
         cvSetMouseCallback("view", &mouseHandler, 0);
+        cvResize(lane, show_img2);
+
         cvShowImage("view", lane);
         cvWaitKey(WAIT_TIME);
     }
 
-    warp_img = cvCreateImage(cvSize(MAP_MAX, MAP_MAX), img->depth, 1);
     cvWarpPerspective(lane, warp_img, warp_matrix, CV_INTER_LINEAR | CV_WARP_INVERSE_MAP | CV_WARP_FILL_OUTLIERS);
 	
     if (DEBUG) {
-        cvShowImage("warp", warp_img);
-        cvWaitKey(10);
+        cvResize(warp_img, show_img3);
+        cvShowImage("warp", show_img3);
+        cvWaitKey(WAIT_TIME);
     }
-    ker1 = cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_ELLIPSE);
     cvDilate(warp_img, warp_img, ker1, 55);
     populateLanes(warp_img);
 
-    cvReleaseImage(&warp_img);
     cvReleaseImage(&lane);
 }
 

@@ -4,7 +4,10 @@
 //#define FPS_TEST
 
 char **local_map;
-//IplImage *map_img;
+
+Mat showImage1;
+Mat showImage2;
+
 
 
 void *planner_thread(void *arg) {
@@ -113,9 +116,9 @@ void *planner_thread(void *arg) {
          my_bot_location.x=500;
          my_bot_location.y=100;
          my_bot_location.z=90;
-        // my_target_location.x=500;
-        // my_target_location.y=901;
-        // my_target_location.z=90;
+        my_target_location.x=500;
+        my_target_location.y=901;
+        my_target_location.z=90;
 	cmdvel=planner_space::Planner::findPath(my_bot_location, my_target_location,map_img);
 	cout<<"bot point "<<cmdvel.linear.x<<" "<<cmdvel.angular.z<<endl;
 

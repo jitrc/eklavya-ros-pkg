@@ -41,35 +41,7 @@ namespace planner_space {
         ros::Publisher target_pub = nh.advertise<std_msgs::String>("target_reached", 20);
         std_msgs::String msg;
         msg.data = "REACHED YO YO";
-        
-        // addObstacleP(map_img,500,500,20)    ;
 
-        //  addObstacleP(map_img,100+rand()%600,100+rand()%600,20);
-        //  addObstacleP(map_img,100+rand()%600,100+rand()%600,20);
-        //  addObstacleP(map_img,100+rand()%600,100+rand()%600,20);
-        //  addObstacleP(map_img,100+rand()%600,100+rand()%600,20);
-        //  addObstacleP(map_img,100+rand()%600,100+rand()%600,20);
-
-    #ifdef DistTransform
-     cv::Mat dist;
-     cv::Mat grayImg;
-      
-    cvtColor(map_img, grayImg, CV_BGR2GRAY);
-
-    cv::Mat temp(map_img.rows,map_img.cols,CV_8UC1,cv::Scalar(255));
-    temp=temp-grayImg;
-
-    distanceTransform(grayImg, dist, CV_DIST_L2, 3);
-    
-    normalize(dist, dist, 0.0, 1.0, NORM_MINMAX);
-    double minVal, maxVal;
-    cv::Mat normImage;
-    minMaxLoc(dist, &minVal, &maxVal); //find minimum and maximum intensities
-    dist.convertTo(normImage, CV_8U, 255.0/(maxVal - minVal), -minVal * 255.0/(maxVal - minVal));
-    normImage=temp-normImage;
-    cv::Mat i[3]= {normImage,normImage,normImage};
-    merge(i ,3,map_img);
-    #endif
         if (isEqual(start, goal)) {
             ROS_INFO("[PLANNER] Target Reached");
             //Planner::finBot();
@@ -88,15 +60,8 @@ namespace planner_space {
 
             state current = open_list.front();
 #ifdef DEBUG
-            //cout << "==> CURRENT: ";  print(current);
-            #ifdef DistTransform
-            plotPoint(grayImg,current.pose);
-          cv::imshow("[PLANNER] Map", grayImg);
-
-            #else
             plotPoint(map_img,current.pose);
           cv::imshow("[PLANNER] Map", map_img);
-            #endif
                 cvWaitKey(0);
 #endif
 
@@ -106,29 +71,19 @@ namespace planner_space {
             }
 
             if (isEqual(current, goal)) {
-                #ifdef DistTransform
-               cmdvel=reconstructPath(came_from, current,grayImg);
-               #else
+
                cmdvel=reconstructPath(came_from, current,map_img);
-               #endif
 
 #ifdef DEBUG
                 ROS_INFO("[PLANNER] Path Found");
-                #ifdef DistTransform
-              cv::imshow("[PLANNER] Map", grayImg);
-              #else
 
                 cv::imshow("[PLANNER] Map", map_img);
-                #endif
                 cvWaitKey(0);
 #endif
-                #ifdef DistTransform
-              cv::imshow("[PLANNER] Map", grayImg);
-              #else
 
-                cv::imshow("[PLANNER] Map", map_img);
-                #endif
-
+                resize(map_img, showImage1,cvSize(400,400));
+                cv::imshow("[PLANNER] Map", showImage1);
+                cvWaitKey(WAIT_TIME);
                 closePlanner();
                 
                 return cmdvel;
@@ -136,27 +91,17 @@ namespace planner_space {
 
              if(onTarget(current ,goal))
              {
-                 #ifdef DistTransform
-               cmdvel=reconstructPath(came_from, current,grayImg);
-               #else
+
                cmdvel=reconstructPath(came_from, current,map_img);
-               #endif
 
 #ifdef DEBUG
                 ROS_INFO("[PLANNER] Path Found");
-   #ifdef DistTransform
-              cv::imshow("[PLANNER] Map", grayImg);
-              #else
-
-                cv::imshow("[PLANNER] Map", map_img);
-                #endif                cvWaitKey(0);
+                cv::imshow("[PLANNER] Map", map_img);   
+                cvWaitKey(0);
 #endif
-                #ifdef DistTransform
-              cv::imshow("[PLANNER] Map", grayImg);
-              #else
-
-                 cv::imshow("[PLANNER] Map", map_img);
-                #endif
+                resize(map_img,showImage2,cvSize(400,400));
+                 cv::imshow("[PLANNER] Map", showImage2);
+                cvWaitKey(WAIT_TIME);
                 closePlanner();
                 
                 return cmdvel;
@@ -177,12 +122,8 @@ namespace planner_space {
                 state neighbor = neighbors[i];
 
 #ifdef DEBUG
-                #ifdef DistTransform
-               //plotPoint(map_img,neighbor.pose);
-
-               #else
+             
                 //plotPoint(map_img,neighbor.pose);
-                #endif
 #endif
 
                 if (!(((neighbor.pose.x >= 0) && (neighbor.pose.x < MAP_MAX)) &&
@@ -196,13 +137,6 @@ namespace planner_space {
 
                 double tentative_g_score = neighbor.g + current.g;
                 double admissible = distance(neighbor.pose, goal.pose);
-#ifdef  DistTransform
-                double cost1=map_img.at<cv::Vec2b>(neighbor.pose.x,MAP_MAX-1-neighbor.pose.y)[0]; 
-                cost1=((int)cost1/32);
-                cost1=cost1*32*.1;
-                //double consistent = max(admissible, current.h - neighbor.g);
-                admissible=(admissible*admissible+cost1*cost1)/(admissible+cost1);
-#endif
                 double consistent = admissible;
                 //please explain next condition 
                 //@TODO :if already in open_list update cost and came_from if cost is less

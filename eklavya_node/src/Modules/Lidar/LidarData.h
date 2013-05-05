@@ -10,6 +10,9 @@
 #include <fstream>
 
 using namespace std;
+extern IplImage* showImg1;
+extern IplImage* showImg2;
+extern IplImage* showImg3;
 
 #ifndef LIDARDATA_H
 #define	LIDARDATA_H

@@ -7,7 +7,7 @@ using namespace cvb;
 
 #define choice 2
 #define scale 220/57
-#define N 7 // canny kernel 
+#define N 7 // canny kernel
 
 #define SCALE_X 10
 
@@ -38,6 +38,7 @@ int canny_kernel = 3, high_threshold = 900, low_threshold = 550, vote = 25, leng
 int k = 90;
 
 IplImage* LaneDetection::colorBasedLaneDetection(IplImage *frame, int k) {
+    IplImage *frame_out = cvCreateImage(cvGetSize(frame), frame->depth, 1);
     int height = gray_frame->height;
     int width = gray_frame->width;
     uchar *data;
@@ -65,9 +66,9 @@ IplImage* LaneDetection::colorBasedLaneDetection(IplImage *frame, int k) {
     std_dev = sqrt(var);
     //out << "Standard Deviation: " << std_dev << endl;
     
-    cvThreshold(gray_frame, gray_frame, (mean + k / 100.0 * std_dev), 255, CV_THRESH_BINARY);
+    cvThreshold(gray_frame, frame_out, (mean + k / 100.0 * std_dev), 255, CV_THRESH_BINARY);
     
-    return gray_frame;
+    return frame_out;
 }
 
 void LaneDetection::applyHoughTransform(IplImage* img, IplImage *dst, int vote, int length, int mrgh) {
@@ -75,14 +76,14 @@ void LaneDetection::applyHoughTransform(IplImage* img, IplImage *dst, int vote, 
     CvMemStorage* storage = cvCreateMemStorage(0);
     cvSetZero(dst);
     int i;
-
+    
     lines = cvHoughLines2(img, storage, CV_HOUGH_PROBABILISTIC, 1, CV_PI / 180, vote, length, mrgh);
     int n = lines->total;
     for (i = 0; i < n; i++) {
         CvPoint* line = (CvPoint*) cvGetSeqElem(lines, i);
         cvLine(dst, line[0], line[1], CV_RGB(255, 255, 255), 15, 8);
     }
-
+    
     cvReleaseMemStorage(&storage);
 }
 
@@ -90,7 +91,7 @@ CvSeq* GetHoughLanes(IplImage* img, int vote, int length, int mrgha) {
     CvSeq* lines;
     CvMemStorage* storage = cvCreateMemStorage(0);
     lines = cvHoughLines2(img, storage, CV_HOUGH_PROBABILISTIC, 1, CV_PI / 180, vote, length, mrgha);
-
+    
     return lines;
 }
 
@@ -117,16 +118,16 @@ void LaneDetection::initializeLaneVariables(IplImage *input_frame) {
     //    cvCreateTrackbar("B Min", "Control Box", &minvalue_B, 255, NULL);
     //    cvCreateTrackbar("G Min", "Control Box", &minvalue_G, 255, NULL);
     //    cvCreateTrackbar("R Min", "Control Box", &minvalue_R, 255, NULL);
-        cvCreateTrackbar("Vote", "Control Box", &vote, 50, NULL);
-        cvCreateTrackbar("Length", "Control Box", &length, 100, NULL);
-        cvCreateTrackbar("Merge", "Control Box", &mrg, 15, NULL);
-        cvCreateTrackbar("Canny Kernel", "Control Box", &canny_kernel, 10, NULL);
-        cvCreateTrackbar("High Canny Threshold", "Control Box", &high_threshold, 2000, NULL);
-        cvCreateTrackbar("Low Canny Threshold", "Control Box", &low_threshold, 2000, NULL);
-
+    cvCreateTrackbar("Vote", "Control Box", &vote, 50, NULL);
+    cvCreateTrackbar("Length", "Control Box", &length, 100, NULL);
+    cvCreateTrackbar("Merge", "Control Box", &mrg, 15, NULL);
+    cvCreateTrackbar("Canny Kernel", "Control Box", &canny_kernel, 10, NULL);
+    cvCreateTrackbar("High Canny Threshold", "Control Box", &high_threshold, 2000, NULL);
+    cvCreateTrackbar("Low Canny Threshold", "Control Box", &low_threshold, 2000, NULL);
+    
     //Destination variables
     int widthInCM = 100, h1 = 2, h2 = 75; //width and height of the lane. width:widthoflane/scale;
-
+    
     srcQuad[0].x = (float) 134; //src Top left
     srcQuad[0].y = (float) 166;
     srcQuad[1].x = (float) 432; //src Top right
@@ -135,7 +136,7 @@ void LaneDetection::initializeLaneVariables(IplImage *input_frame) {
     srcQuad[2].y = (float) 362;
     srcQuad[3].x = (float) 488; //src Bot right
     srcQuad[3].y = (float) 354;
-
+    
     dstQuad[0].x = (float) (500 - widthInCM / (2)); //dst Top left
     dstQuad[0].y = (float) (999 - h2);
     dstQuad[1].x = (float) (500 + widthInCM / (2)); //dst Top right
@@ -144,7 +145,7 @@ void LaneDetection::initializeLaneVariables(IplImage *input_frame) {
     dstQuad[2].y = (float) (999 - h1);
     dstQuad[3].x = (float) (500 + widthInCM / (2)); //dst Bot right
     dstQuad[3].y = (float) (999 - h1);
-
+    
     cvGetPerspectiveTransform(dstQuad, srcQuad, warp_matrix);
 }
 
@@ -155,19 +156,19 @@ IplImage *getLaneLines(IplImage* src) {
     CvSeq* lines = 0;
     int i;
     cvCanny(src, dst, 50, 200, 3);
-
+    
     color_dst = cvCreateImage(cvGetSize(dst), dst->depth, 3);
     cvSetZero(color_dst);
     //cvCvtColor( dst, color_dst, CV_GRAY2BGR );
-
+    
     lines = cvHoughLines2(dst, storage, CV_HOUGH_STANDARD, 1, CV_PI / 180, 60, 0, 0);
-
+    
     for (i = 0; i < MIN(lines->total, 100); i++) {
         float* line = (float*) cvGetSeqElem(lines, i);
         float rho = line[0];
         float theta = line[1];
         CvPoint pt1, pt2;
-
+        
         double a = cos(theta), b = sin(theta);
         double x0 = a*rho, y0 = b*rho;
         pt1.x = cvRound(x0 + 1000 * (-b));
@@ -176,7 +177,7 @@ IplImage *getLaneLines(IplImage* src) {
         pt2.y = cvRound(y0 - 1000 * (a));
         cvLine(color_dst, pt1, pt2, CV_RGB(255, 255, 255), 3, 8);
     }
-
+    
     cvCvtColor(color_dst, dst, CV_BGR2GRAY);
     return dst;
 }
@@ -203,7 +204,7 @@ void populateLanes(IplImage *img) {
 }
 
 void mouseHandler(int event, int x, int y, int flags, void* param) {
-
+    
     if (event == CV_EVENT_RBUTTONDOWN) {
         i++;
         std::cout << "@ Right mouse button pressed at: " << x << "," << y << std::endl;
@@ -217,13 +218,13 @@ void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
     } catch (sensor_msgs::CvBridgeException& e) {
         ROS_ERROR("ERROR IN CONVERTING IMAGE!!!");
     }
-
+    
     if (DEBUG) {
         cvResize(img, show_img4);
         cvShowImage("view_orig", show_img4);
         cvWaitKey(WAIT_TIME);
     }
-
+    
     if (iter == 0) {
         initializeLaneVariables(img);
     }
@@ -241,7 +242,7 @@ void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
         lane_o.applyHoughTransform(edge_frame, gray_hough_frame, vote, length, mrg);
         //TODO: Truncate the image
         if (DEBUG) {
-             cvResize(gray_hough_frame, show_img1);
+            cvResize(gray_hough_frame, show_img1);
             cvShowImage("Hough", show_img1);
             cvWaitKey(WAIT_TIME);
         }
@@ -254,15 +255,15 @@ void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
     if (choice == 2) {
         lane = joinResult(lane_o.colorBasedLaneDetection(img, k), gray_hough_frame);
     }
-
+    
     if (DEBUG) {
         cvSetMouseCallback("view", &mouseHandler, 0);
         cvResize(lane, show_img2);
-
+        
         cvShowImage("view", lane);
         cvWaitKey(WAIT_TIME);
     }
-
+    
     cvWarpPerspective(lane, warp_img, warp_matrix, CV_INTER_LINEAR | CV_WARP_INVERSE_MAP | CV_WARP_FILL_OUTLIERS);
 	
     if (DEBUG) {
@@ -272,7 +273,7 @@ void LaneDetection::markLane(const sensor_msgs::ImageConstPtr& image) {
     }
     cvDilate(warp_img, warp_img, ker1, 55);
     populateLanes(warp_img);
-
+    
     cvReleaseImage(&lane);
 }
 
@@ -284,12 +285,12 @@ IplImage* LaneDetection::joinResult(IplImage* color_gray, IplImage* hough_gray) 
     uchar* color_data = (uchar*) color_gray->imageData;
     uchar* hough_data = (uchar*) hough_gray->imageData;
     uchar* lane_data = (uchar*) lane_gray->imageData;
-
+    
     for (i = 0; i < color_gray->height; i++) {
         for (j = 0; j < color_gray->width; j++) {
             index_color = i * color_gray->widthStep + j;
- //           index_hough = i+((N-1)/2) * hough_gray->widthStep + j;
-           index_hough = i * hough_gray->widthStep + j;
+            //           index_hough = i+((N-1)/2) * hough_gray->widthStep + j;
+            index_hough = i * hough_gray->widthStep + j;
             if ((color_data[index_color] > 0) && (hough_data[index_hough] > 0)) {
                 lane_data[index_color] = 255;
             } else {
@@ -297,6 +298,6 @@ IplImage* LaneDetection::joinResult(IplImage* color_gray, IplImage* hough_gray) 
             }
         }
     }
-
+    
     return lane_gray;
 }

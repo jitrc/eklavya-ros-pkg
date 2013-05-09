@@ -2,8 +2,8 @@
 
 <launch>
   <arg name="Hokuyo" value="1" />
-  <arg name="VectorNav" value="0" />
-  <arg name="Sparkfun_Yaw" value="0" />
+  <arg name="VectorNav" value="1" />
+  <arg name="Sparkfun_Yaw" value="1" />
   <arg name="Sparkfun_Quaternion" value="0" />
   <arg name="Atmega" value="0" />
   <arg name="USB_GPS" value="0" />
@@ -36,6 +36,6 @@
   
   <node if="$(arg Roboteq)" pkg="eklavya_roboteq" type="server" name="server" />
   
-  <node if="$(arg Roboteq)" pkg="eklavya_roboteq" type="encoder_controller_client" name="encoder_controller_client" />
+  <node if="$(arg Roboteq)" pkg="eklavya_roboteq" type="eklavya_controller_client" name="eklavya_controller_client" />
 </launch>
   

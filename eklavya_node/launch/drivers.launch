@@ -34,7 +34,7 @@
   
   <node if="$(arg Logitech)" pkg="camera_node" type="camera_pub" name="camera_pub" />
   
-  <node if="$(arg Roboteq)" pkg="eklavya_roboteq" type="server" name="server" />
+  <node if="$(arg Roboteq)" pkg="eklavya_roboteq" type="server" name="server" respawn="true"/>
   
   <node if="$(arg Roboteq)" pkg="eklavya_roboteq" type="eklavya_controller_client" name="eklavya_controller_client" />
 </launch>

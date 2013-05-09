@@ -1,16 +1,12 @@
-
-#ifndef _PLANNERMETHOD_H_
-#define _PLANNERMETHOD_H_
 #include "planner.h"
+
 /**
  * Control Modes:
  * 0: No PID
  * 1: Yaw PID with NO Thread
  * 2: Yaw PID with Controller Thread
  */
-
 #define PID_MODE 0
-//#define DistTransform
 #define SIMCTL
 #define SIM_SEEDS
 //#define DEBUG
@@ -35,16 +31,18 @@
 #define CLOSED 2
 #define UNASSIGNED 3
 #define VMAX 70
-#define MAX_ITER 5000
+#define MAX_ITER 10000
 
 using namespace std;
 
 namespace planner_space {
 
-typedef struct state { // elemental data structure of openset
+    typedef struct state { // elemental data structure of openset
         Triplet pose;
-        double g, h; // costs
+        double g_dist, h_dist; // costs
         int seed_id;
+        double g_obs, h_obs;
+        int depth;
     } state;
 
     typedef struct seed_point {
@@ -88,8 +86,25 @@ typedef struct state { // elemental data structure of openset
     struct StateCompare : public std::binary_function<state, state, bool> {
 
         bool operator() (state const& state_1, state const& state_2) const {
-            double f1 = state_1.g + state_1.h;
-            double f2 = state_2.g + state_2.h;
+            double f1 = state_1.g_dist + state_1.h_dist;
+            double f2 = state_2.g_dist + state_2.h_dist;
+
+#ifdef DistTransform
+            f1 += state_1.g_obs + state_1.h_obs;
+            f2 += state_2.g_obs + state_2.h_obs;
+#endif
+
+            return f1 > f2;
+        }
+    };
+
+    struct StateCompareDT : public std::binary_function<state, state, bool> {
+
+        bool operator() (state const& state_1, state const& state_2) const {
+            double f1 = state_1.g_dist + state_1.h_dist;
+            double f2 = state_2.g_dist + state_2.h_dist;
+            f1 += state_1.g_obs + state_1.h_obs;
+            f2 += state_2.g_obs + state_2.h_obs;
 
             return f1 > f2;
         }
@@ -106,8 +121,8 @@ typedef struct state { // elemental data structure of openset
     /// ------------------------------------------------------------- ///
 
     void mouseHandler(int event, int x, int y, int flags, void* param) {
-        if (event == CV_EVENT_RBUTTONDOWN) {
-//            i++;
+        if (event == CV_EVENT_LBUTTONDOWN) {
+            //            i++;
             ROS_INFO("[PLANNER] Right mouse button pressed at: (%d, %d)", x, y);
         }
     }
@@ -183,6 +198,7 @@ typedef struct state { // elemental data structure of openset
             s.k = s.vl / s.vr;
 #endif
 
+            //s.cost *= 1.2;
             s.dest.x = (int) x;
             s.dest.y = (int) y;
             s.dest.z = (int) z;
@@ -221,9 +237,7 @@ typedef struct state { // elemental data structure of openset
         return error < 35;
     }
 
-
-
-    void plotPoint(cv::Mat map_img,Triplet pose) {
+    void plotPoint(cv::Mat inputImgP, Triplet pose) {
         int x = pose.x;
         int y = MAP_MAX - pose.y - 1;
         int ax = x > MAP_MAX ? MAP_MAX - 1 : x;
@@ -237,10 +251,10 @@ typedef struct state { // elemental data structure of openset
 
         srand(time(0));
         cv::line(
-                map_img,
+                inputImgP,
                 cvPoint(ax, ay),
                 cvPoint(bx, by),
-                CV_RGB(rand() % 255, rand() % 255, rand() % 255),
+                CV_RGB(127, 127, 127),
                 2,
                 CV_AA,
                 0);
@@ -279,8 +293,8 @@ typedef struct state { // elemental data structure of openset
 #endif
     }
 
-    	geometry_msgs::Twist sendCommand(seed s) {
-            	geometry_msgs::Twist cmdvel;
+    geometry_msgs::Twist sendCommand(seed s) {
+        geometry_msgs::Twist cmdvel;
 
         int left_vel = 0;
         int right_vel = 0;
@@ -301,12 +315,10 @@ typedef struct state { // elemental data structure of openset
             case 0:
             {
                 double vavg = 45;
-                double aggression = 2;
-                //s.k = s.k < 1 ? s.k / aggression : s.k * aggression;
+                double aggression = 1;
+                s.k = s.k < 1 ? s.k / aggression : s.k * aggression;
                 left_vel = (int) 2 * vavg * s.k / (1 + s.k);
-                left_vel = left_vel % 80;
                 right_vel = (int) (2 * vavg - left_vel);
-                right_vel = right_vel % 80;
                 break;
             }
             case 1:
@@ -391,31 +403,28 @@ typedef struct state { // elemental data structure of openset
         usleep(100);
 #endif  
 
-
+        left_vel = left_vel > 80 ? 80 : left_vel;
+        right_vel = right_vel > 80 ? 80 : right_vel;
+        left_vel = left_vel < 0 ? 0 : left_vel;
+        right_vel = right_vel < 0 ? 0 : right_vel;
+        
         double scale = 100;
-    double w = 0.55000000;
-    cmdvel.linear.x = (left_vel + right_vel) / (2 * scale);
-    cmdvel.angular.z = (left_vel - right_vel) / (w * scale);
-	cmdvel.linear.y=0;
-
-
-	cmdvel.linear.z=0;
-
-
-	cmdvel.angular.x=0;
-
-
-	cmdvel.angular.y=0;
-
+        double w = 0.55000000;
+        cmdvel.linear.x = (left_vel + right_vel) / (2 * scale);
+        cmdvel.linear.y = 0;
+        cmdvel.linear.z = 0;
+        cmdvel.angular.x = 0;
+        cmdvel.angular.y = 0;
+        cmdvel.angular.z = (left_vel - right_vel) / (w * scale);
 
         ROS_INFO("[Planner] Command : (%d, %d)", left_vel, right_vel);
         return cmdvel;
     }
 
-    	geometry_msgs::Twist  reconstructPath(map<Triplet, state, PoseCompare> came_from, state current,cv::Mat map_img) {
+    geometry_msgs::Twist reconstructPath(map<Triplet, state, PoseCompare> came_from, state current, cv::Mat inputImgP) {
         pthread_mutex_lock(&path_mutex);
 
-        	geometry_msgs::Twist cmdvel;
+        geometry_msgs::Twist cmdvel;
 
         path.clear();
 
@@ -423,8 +432,9 @@ typedef struct state { // elemental data structure of openset
         state s = current;
         while (came_from.find(s.pose) != came_from.end()) {
 #if defined SHOW_PATH || defined DEBUG
-            plotPoint(map_img,s.pose);
+            plotPoint(inputImgP, s.pose);
 #endif
+
             path.insert(path.begin(), s.pose);
             seed_id = s.seed_id;
             s = came_from[s.pose];
@@ -432,36 +442,21 @@ typedef struct state { // elemental data structure of openset
 
         pthread_mutex_unlock(&path_mutex);
 
-#if defined(DEBUG) || defined(SHOW_PATH)
-
-        cv::imshow("[PLANNER] Map", map_img);
-//        cvWaitKey(0);
-        cvSetMouseCallback("[PLANNER] Map", &mouseHandler, 0);
-
-
-#ifdef DEBUG
+#if defined(DEBUG)
+        cv::imshow("[PLANNER] Map", inputImgP);
         cvWaitKey(0);
-#else
-        cvWaitKey(WAIT_TIME);
-#endif
-
 #endif
 
         if (seed_id != -1) {
-            cmdvel=sendCommand(seeds[seed_id]);
+            cmdvel = sendCommand(seeds[seed_id]);
         } else {
             ROS_ERROR("[PLANNER] Invalid Command Requested");
             Planner::finBot();
         }
         return cmdvel;
-
     }
 
-    void reconstructPath(map<Triplet, state, PoseCompare> came_from, cv::Mat 
-
-
-
-		map_img, state current) {
+    void reconstructPath(map<Triplet, state, PoseCompare> came_from, cv::Mat inputImgP, state current) {
         pthread_mutex_lock(&path_mutex);
 
         path.clear();
@@ -469,13 +464,13 @@ typedef struct state { // elemental data structure of openset
         int seed_id = -1;
         state s = current;
         while (came_from.find(s.pose) != came_from.end()) {
-            plotPoint(map_img,s.pose);
+            plotPoint(inputImgP, s.pose);
             path.insert(path.begin(), s.pose);
             seed_id = s.seed_id;
             s = came_from[s.pose];
         }
 
-        cv::imshow("[PLANNER] Map", map_img);
+        cv::imshow("[PLANNER] Map", inputImgP);
         cvWaitKey(WAIT_TIME);
 
         pthread_mutex_unlock(&path_mutex);
@@ -503,11 +498,12 @@ typedef struct state { // elemental data structure of openset
                     -sx * cos(current.pose.z * (CV_PI / 180)) +
                     sy * sin(current.pose.z * (CV_PI / 180)));
 
-
             neighbour.pose.z = (int) (sz - (90 - current.pose.z));
-            neighbour.g = seeds[i].cost;
-            neighbour.h = 0;
+            neighbour.h_dist = 0;
             neighbour.seed_id = i;
+            neighbour.g_dist = seeds[i].cost;
+            neighbour.h_obs = 0;
+            neighbour.g_obs = 0;
 
             neighbours.push_back(neighbour);
         }
@@ -515,33 +511,31 @@ typedef struct state { // elemental data structure of openset
         return neighbours;
     }
 
-    bool onTarget(state current ,state goal)
-    {
-        for (unsigned int i = 0; i < seeds.size();  i++)
-        {
-            for (unsigned int j = 0; j < seeds[i].seed_points.size(); j++)
-            {
+    bool onTarget(state current, state goal) {
+        for (unsigned int i = 0; i < seeds.size(); i++) {
+            for (unsigned int j = 0; j < seeds[i].seed_points.size(); j++) {
                 state temp;
-                 double sx = seeds[i].seed_points[j].x;
-            double sy = seeds[i].dest.y;
-            double sz = seeds[i].dest.z;
+                double sx = seeds[i].seed_points[j].x;
+                double sy = seeds[i].dest.y;
+                double sz = seeds[i].dest.z;
 
-            temp.pose.x = (int) (current.pose.x +
-                    sx * sin(current.pose.z * (CV_PI / 180)) +
-                    sy * cos(current.pose.z * (CV_PI / 180)));
-            temp.pose.y = (int) (current.pose.y +
-                    -sx * cos(current.pose.z * (CV_PI / 180)) +
-                    sy * sin(current.pose.z * (CV_PI / 180)));
-             
-                if(isEqual(temp,goal))
+                temp.pose.x = (int) (current.pose.x +
+                        sx * sin(current.pose.z * (CV_PI / 180)) +
+                        sy * cos(current.pose.z * (CV_PI / 180)));
+                temp.pose.y = (int) (current.pose.y +
+                        -sx * cos(current.pose.z * (CV_PI / 180)) +
+                        sy * sin(current.pose.z * (CV_PI / 180)));
+
+                if (isEqual(temp, goal)) {
                     return true;
+                }
             }
         }
         return false;
     }
 
     void print(state s) {
-        double f = s.g + s.h;
+        double f = s.g_dist + s.h_dist;
         cout << "{ " <<
                 s.pose.x << " , " <<
                 s.pose.y << " , " <<
@@ -577,26 +571,19 @@ typedef struct state { // elemental data structure of openset
 
     }
 
-    void addObstacleP(cv::Mat map_img,int x,int y,int r)
-    {
-        
-         for(int i = -r; i < r; i++) {
-            if(x+i>=0&&x+i<=MAP_MAX){
+    void addObstacleP(cv::Mat inputImgP, int x, int y, int r) {
+        for (int i = -r; i < r; i++) {
+            if (x + i >= 0 && x + i <= MAP_MAX) {
+                for (int j = -r; j < r; j++) {
+                    if (y + j >= 0 && y + j <= MAP_MAX) {
+                        local_map[x + i][y + j] = 255;
+                    }
+                }
+            }
+        }
 
-            for(int j = -r; j < r; j++) {
-            if(y+j>=0&&y+j<=MAP_MAX){
-                local_map[x + i][y + j] = 255;
-            }
-            }
-        }
-        }
 #if defined(DEBUG) || defined(SHOW_PATH)
-        cv::circle(map_img, cvPoint(x, MAP_MAX - y - 1), r, CV_RGB(255, 255, 255), -1, CV_AA, 0);
+        cv::circle(inputImgP, cvPoint(x, MAP_MAX - y - 1), r, CV_RGB(255, 255, 255), -1, CV_AA, 0);
 #endif
-        
-        
     }
-
 }
-
-#endif

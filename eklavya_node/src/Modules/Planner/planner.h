@@ -12,29 +12,29 @@
 #include <highgui.h>
 #include <iostream>
 #include <time.h>
-using namespace cv;
-#define MATDATA(img,x,y,n) img.at<cv::Vec3b>(x,y)[n]
+//using namespace cv;
+//#define MATDATA(img,x,y,n) img.at<cv::Vec3b>(x,y)[n]
 
 extern char** local_map;
-extern Mat showImage1;
-extern Mat showImage2;
+extern cv::Mat map_img;
+extern int ol_overflow;
 
 namespace planner_space {
 
-    
     typedef struct command {
         int left_velocity, right_velocity;
     } command;
 
     class Planner {
     public:
-//        static  ros::NodeHandle nh;
-//
-//
-//     static ros::Publisher vel_pub;
-   
-        static void loadPlanner();	
-        static 	geometry_msgs::Twist findPath(Triplet bot, Triplet target,cv::Mat map_img);
+        //        static  ros::NodeHandle nh;
+        //
+        //
+        //     static ros::Publisher vel_pub;
+
+        static void loadPlanner();
+        static geometry_msgs::Twist findPath(Triplet bot, Triplet target, cv::Mat map_img);
+        static geometry_msgs::Twist findPathDT(Triplet bot, Triplet target, cv::Mat map_img);
         static void finBot();
     };
 }

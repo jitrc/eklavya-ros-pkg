@@ -133,6 +133,7 @@ void startThreads() {
             break;
 
         case PlannerTestOnly:    
+            startThread(&navigation_id, &attr, &navigation_thread);
             startThread(&planner_id, &attr, &planner_thread);
             break;
 
